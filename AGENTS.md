@@ -57,6 +57,8 @@ add it to `docs/README.md`. Put system-design material in
 `docs/architecture/`. Include the intended workflow, permissions, key rules,
 and open decisions where relevant. Do not leave implemented behavior documented
 as planned or omit documentation merely because the implementation is small.
+Keep `docs/TODO.md` current: mark completed work, remove invalid items, and add
+newly discovered work in the appropriate section.
 
 ## Commit & Pull Request Guidelines
 
