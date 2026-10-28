@@ -12,6 +12,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   defines stock, replenishment, and allocation to a drone build.
 - [Assembly guidance and issues](assembly-guidance-and-issues.md) defines
   build instructions and mentor-led correction workflows.
+- [Architecture](architecture.md) defines the Angular, ASP.NET Core,
+  PostgreSQL, Docker, and hosting approach.
 - Future feature specifications will live here as separate Markdown files, one
   per feature, after the feature set is agreed.
 
