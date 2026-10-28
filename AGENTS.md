@@ -45,6 +45,16 @@ test names that state behavior, such as
 deterministic, independent, and runnable with `dotnet test`; add regression
 coverage for every bug fix.
 
+## Documentation Maintenance
+
+Treat documentation as part of the feature change. When changing an existing
+feature or its behavior, update the corresponding file in `docs/` in the same
+change. When implementing a new feature or behavior with no existing
+documentation, create a concise feature specification in `docs/` and add it to
+`docs/README.md`. Include the intended workflow, permissions, key rules, and
+open decisions where relevant. Do not leave implemented behavior documented as
+planned or omit documentation merely because the implementation is small.
+
 ## Commit & Pull Request Guidelines
 
 The history currently contains only `Initial commit`, so no established commit
