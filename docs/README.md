@@ -10,6 +10,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   record, lifecycle, and status-transition rules.
 - [Component inventory and requests](component-inventory-and-requests.md)
   defines stock, replenishment, and allocation to a drone build.
+- [Assembly guidance and issues](assembly-guidance-and-issues.md) defines
+  build instructions and mentor-led correction workflows.
 - Future feature specifications will live here as separate Markdown files, one
   per feature, after the feature set is agreed.
 
