@@ -37,6 +37,21 @@ Only ports 80 and 443 are public. Database credentials, token-signing keys,
 and connection strings belong in deployment secrets or a server-side `.env`
 file, never in Git or the Angular bundle.
 
+## Responsive user experience
+
+The application must be usable on smartphones, tablets, laptops, and desktop
+computers. Angular views should use responsive layouts that reflow content for
+small screens rather than relying on a desktop-sized interface or horizontal
+page scrolling. Every core workflow—sign-in, build progress, issue reporting,
+quality control, flight tests, and shipment updates—must remain complete and
+practical on a phone as well as on a larger screen.
+
+Design for touch and keyboard interaction, readable text, accessible labels,
+and clear feedback at all supported viewport sizes. Dense information such as
+tables may adapt into cards or provide a deliberate, usable horizontal scroll;
+critical actions and status must not be hidden. Verify user-facing changes at
+phone, tablet, laptop, and wide-desktop viewport widths before release.
+
 ## Docker deployment
 
 Use Docker Compose for local development and the first deployment. The planned

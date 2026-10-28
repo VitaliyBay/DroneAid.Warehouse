@@ -35,6 +35,8 @@ PascalCase for types, public members, and methods, and camelCase for local
 variables and parameters. Prefer clear, domain-specific names such as
 `WarehouseInventoryService` over abbreviations. Keep nullable-reference and
 analyzer warnings addressed rather than suppressing them without explanation.
+All user-facing work must be responsive and usable on smartphones, tablets,
+laptops, and desktop computers; verify layouts at each of those viewport sizes.
 
 ## Testing Guidelines
 
