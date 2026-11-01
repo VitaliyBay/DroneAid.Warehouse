@@ -1,4 +1,5 @@
 using DroneAid.Barcelona.Api.Models;
+using DroneAid.Barcelona.Api.Inventory;
 using DroneAid.Barcelona.Api.Security;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,22 +13,41 @@ public static class DatabaseInitializer
         var database = scope.ServiceProvider.GetRequiredService<DroneAidDbContext>();
 
         await database.Database.EnsureCreatedAsync();
+        await database.Database.MigrateAsync();
 
         const string testUserName = "DAB_Test";
-        if (await database.Users.AnyAsync(user => user.NormalizedUserName == "DAB_TEST"))
+        if (!await database.Users.AnyAsync(user => user.NormalizedUserName == "DAB_TEST"))
         {
-            return;
+            var password = PasswordHasher.CreateHash("qwerty123");
+            database.Users.Add(new AppUser
+            {
+                UserName = testUserName,
+                NormalizedUserName = testUserName.ToUpperInvariant(),
+                PasswordHash = password.Hash,
+                PasswordSalt = password.Salt,
+                Role = "Administrator"
+            });
         }
 
-        var password = PasswordHasher.CreateHash("qwerty123");
-        database.Users.Add(new AppUser
+        var existingComponentNames = await database.ComponentTypes
+            .Select(componentType => componentType.Name)
+            .ToListAsync();
+        var catalogueNames = existingComponentNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var componentName in DroneBuildConfigurations.All
+                     .SelectMany(configuration => configuration.Requirements)
+                     .Select(requirement => requirement.ComponentName)
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .Where(componentName => !catalogueNames.Contains(componentName)))
         {
-            UserName = testUserName,
-            NormalizedUserName = testUserName.ToUpperInvariant(),
-            PasswordHash = password.Hash,
-            PasswordSalt = password.Salt,
-            Role = "Administrator"
-        });
+            database.ComponentTypes.Add(new ComponentType
+            {
+                Name = componentName,
+                Category = componentName,
+                UnitOfMeasure = "each",
+                MinimumQuantityPerBuild = 1,
+                CompatibilityNotes = "Part of the standard Digital and/or Analog drone configuration."
+            });
+        }
 
         await database.SaveChangesAsync();
     }

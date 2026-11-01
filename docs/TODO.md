@@ -7,7 +7,8 @@ section.
 
 ## Product and feature decisions
 
-- [ ] Confirm supported drone models and their build configurations.
+- [ ] Confirm the detailed part and model choices for the initial Digital and
+  Analog drone configurations.
 - [ ] Decide the authentication method, donor-access model, and administrator
   multi-factor authentication requirements.
 - [ ] Finalize roles, permissions, and what information donors may see.
@@ -42,9 +43,9 @@ section.
 - [x] Add Dockerfiles and a Docker Compose setup for web, API, and database.
 - [x] Configure local environment-based database credentials without committing
   the `.env` file.
-- [x] Implement the first component-inventory slice: catalogue, audited stock
-  receipts and adjustments, replenishment request workflow, and responsive
-  workspace view.
+- [x] Implement the first component-inventory slice: predefined Digital and
+  Analog configurations, drone-request workflow, build-capacity calculation,
+  audited component receipts and adjustments, and responsive workspace view.
 - [ ] Establish API error handling, validation, logging, and health checks.
 - [ ] Add drone-specific component reservations, releases, and installation
   records after build configurations and drone records are available.

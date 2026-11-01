@@ -14,6 +14,8 @@ public sealed class DroneAidDbContext(DbContextOptions<DroneAidDbContext> option
 
     public DbSet<ComponentRequest> ComponentRequests => Set<ComponentRequest>();
 
+    public DbSet<DroneRequest> DroneRequests => Set<DroneRequest>();
+
     public DbSet<InventoryAuditEvent> InventoryAuditEvents => Set<InventoryAuditEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,6 +70,19 @@ public sealed class DroneAidDbContext(DbContextOptions<DroneAidDbContext> option
             .HasForeignKey(item => item.ComponentTypeId)
             .OnDelete(DeleteBehavior.Restrict);
         componentRequest.HasIndex(item => new { item.ComponentTypeId, item.Status });
+
+        var droneRequest = modelBuilder.Entity<DroneRequest>();
+        droneRequest.ToTable("drone_requests");
+        droneRequest.HasKey(item => item.Id);
+        droneRequest.Property(item => item.ConfigurationId).HasMaxLength(30).IsRequired();
+        droneRequest.Property(item => item.ConfigurationName).HasMaxLength(100).IsRequired();
+        droneRequest.Property(item => item.Quantity).HasPrecision(12, 3);
+        droneRequest.Property(item => item.Reason).HasMaxLength(1000).IsRequired();
+        droneRequest.Property(item => item.Priority).HasConversion<string>().HasMaxLength(20);
+        droneRequest.Property(item => item.RequestedBy).HasMaxLength(100).IsRequired();
+        droneRequest.Property(item => item.DonorReference).HasMaxLength(200);
+        droneRequest.Property(item => item.Status).HasConversion<string>().HasMaxLength(30);
+        droneRequest.HasIndex(item => new { item.ConfigurationId, item.Status });
 
         var auditEvent = modelBuilder.Entity<InventoryAuditEvent>();
         auditEvent.ToTable("inventory_audit_events");

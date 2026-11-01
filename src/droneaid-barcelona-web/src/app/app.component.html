@@ -2,24 +2,16 @@
   <section class="intro" aria-labelledby="application-title">
     <p class="eyebrow">DropAid Community</p>
     <h1 id="application-title">DroneAid<br />Barcelona</h1>
-    <p class="intro-copy">
-      Coordinate every drone from components and assembly to quality checks,
-      flight testing, and delivery.
-    </p>
-    <div class="status-note">
-      <span aria-hidden="true"></span>
-      Secure workspace for the DropAid community
-    </div>
+    <p class="intro-copy">Coordinate every drone from component availability to delivery.</p>
   </section>
 
-  <section class="login-panel" [class.inventory-panel]="authenticatedUser" aria-labelledby="login-title">
+  <section class="login-panel" [class.inventory-panel]="authenticatedUser" [attr.aria-labelledby]="authenticatedUser ? 'inventory-title' : 'login-title'">
     @if (authenticatedUser; as user) {
-      <div class="inventory-workspace" aria-labelledby="inventory-title">
+      <div class="inventory-workspace">
         <header class="workspace-header">
           <div>
-            <p class="eyebrow">Signed in as {{ user.userName }}</p>
-            <h2 id="inventory-title">Component inventory</h2>
-            <p>Record what is on hand, what needs attention, and what must be replenished.</p>
+            <p class="eyebrow">Operations</p>
+            <h2 id="inventory-title">Drone availability</h2>
           </div>
           <button class="secondary-button" type="button" (click)="loadInventory()" [disabled]="isLoadingInventory">
             {{ isLoadingInventory ? 'Refreshing…' : 'Refresh' }}
@@ -33,77 +25,94 @@
           <p class="success-message" role="status">{{ inventoryMessage }}</p>
         }
 
-        <div class="inventory-grid">
-          <section class="inventory-card" aria-labelledby="catalogue-title">
-            <h3 id="catalogue-title">Add a component type</h3>
-            <form [formGroup]="componentTypeForm" (ngSubmit)="createComponentType()" novalidate>
-              <div class="field"><label for="component-name">Name</label><input id="component-name" type="text" formControlName="name" /></div>
-              <div class="field"><label for="component-category">Category</label><input id="component-category" type="text" formControlName="category" placeholder="e.g. Motor" /></div>
-              <div class="form-columns">
-                <div class="field"><label for="manufacturer">Manufacturer / model</label><input id="manufacturer" type="text" formControlName="manufacturerOrModel" /></div>
-                <div class="field"><label for="part-number">Part number</label><input id="part-number" type="text" formControlName="partNumber" /></div>
+        <section class="capacity-grid" aria-label="Complete drone build capacity">
+          @for (configuration of buildCapacity; track configuration.configurationId) {
+            <article class="capacity-card">
+              <div class="capacity-heading">
+                <div>
+                  <h3>{{ configuration.configurationName }}</h3>
+                  <p>{{ configuration.description }}</p>
+                </div>
+                <strong>{{ configuration.availableBuilds }}</strong>
+              </div>
+              <p class="capacity-label">complete builds available</p>
+              @if (limitingComponents(configuration).length > 0) {
+                <p class="capacity-detail">Needs: @for (component of limitingComponents(configuration); track component.componentName; let last = $last) { {{ component.componentName }}@if (!last) {, } }</p>
+              } @else {
+                <p class="capacity-detail ready">All required components are available.</p>
+              }
+            </article>
+          }
+        </section>
+
+        <div class="workspace-grid">
+          <section class="inventory-card request-card" aria-labelledby="drone-request-title">
+            <h3 id="drone-request-title">Request drones</h3>
+            <p class="card-copy">Record what a donor needs. The correct component plan is selected automatically.</p>
+            <form [formGroup]="droneRequestForm" (ngSubmit)="createDroneRequest()" novalidate>
+              <div class="field">
+                <label for="configuration">Drone type</label>
+                <select id="configuration" formControlName="configurationId">
+                  <option value="digital">Digital drone</option>
+                  <option value="analog">Analog drone</option>
+                </select>
               </div>
               <div class="form-columns">
-                <div class="field"><label for="unit">Unit</label><input id="unit" type="text" formControlName="unitOfMeasure" /></div>
-                <div class="field"><label for="minimum">Minimum per build</label><input id="minimum" type="number" min="0.001" step="0.001" formControlName="minimumQuantityPerBuild" /></div>
+                <div class="field">
+                  <label for="drone-quantity">Quantity</label>
+                  <input id="drone-quantity" type="number" min="1" step="1" formControlName="quantity" [attr.aria-invalid]="droneRequestForm.controls.quantity.invalid && droneRequestForm.controls.quantity.touched" />
+                </div>
+                <div class="field">
+                  <label for="drone-priority">Priority</label>
+                  <select id="drone-priority" formControlName="priority">
+                    <option value="Low">Low</option><option value="Normal">Normal</option><option value="High">High</option><option value="Urgent">Urgent</option>
+                  </select>
+                </div>
               </div>
-              <div class="field"><label for="compatibility">Compatibility notes</label><textarea id="compatibility" formControlName="compatibilityNotes"></textarea></div>
-              <button type="submit">Add to catalogue</button>
+              <div class="field">
+                <label for="donor-reference">Donor reference (optional)</label>
+                <input id="donor-reference" type="text" formControlName="donorReference" />
+              </div>
+              <div class="field">
+                <label for="drone-reason">Request details</label>
+                <textarea id="drone-reason" formControlName="reason" [attr.aria-invalid]="droneRequestForm.controls.reason.invalid && droneRequestForm.controls.reason.touched"></textarea>
+                @if (droneRequestForm.controls.reason.invalid && droneRequestForm.controls.reason.touched) { <p class="field-error">Explain what the donor needs.</p> }
+              </div>
+              <button type="submit">Record drone request</button>
             </form>
           </section>
 
-          <section class="inventory-card" aria-labelledby="receipt-title">
-            <h3 id="receipt-title">Record a receipt</h3>
-            <form [formGroup]="receiptForm" (ngSubmit)="receiveStock()" novalidate>
-              <div class="field"><label for="receipt-component">Component type</label><select id="receipt-component" formControlName="componentTypeId"><option value="" disabled>Select a component</option>@for (component of componentTypes; track component.id) { <option [value]="component.id">{{ component.name }} · {{ component.category }}</option> }</select></div>
-              <div class="form-columns">
-                <div class="field"><label for="receipt-quantity">Quantity</label><input id="receipt-quantity" type="number" min="0.001" step="0.001" formControlName="quantity" /></div>
-                <div class="field"><label for="receipt-state">Availability</label><select id="receipt-state" formControlName="availabilityState"><option value="Available">Available</option><option value="Quarantined">Quarantined</option></select></div>
-              </div>
-              <div class="field"><label for="serial-batch">Serial number or batch</label><input id="serial-batch" type="text" formControlName="serialNumberOrBatch" /></div>
-              <div class="field"><label for="source-reference">Source / order reference</label><input id="source-reference" type="text" formControlName="sourceReference" /></div>
-              <div class="field"><label for="receipt-reason">Reason or inspection result</label><textarea id="receipt-reason" formControlName="reason"></textarea></div>
-              <button type="submit" [disabled]="componentTypes.length === 0">Record receipt</button>
-            </form>
-          </section>
-
-          <section class="inventory-card" aria-labelledby="request-title">
-            <h3 id="request-title">Create a request</h3>
-            <form [formGroup]="requestForm" (ngSubmit)="createRequest()" novalidate>
-              <div class="field"><label for="request-component">Component type</label><select id="request-component" formControlName="componentTypeId"><option value="" disabled>Select a component</option>@for (component of componentTypes; track component.id) { <option [value]="component.id">{{ component.name }} · {{ component.category }}</option> }</select></div>
-              <div class="form-columns">
-                <div class="field"><label for="request-quantity">Quantity needed</label><input id="request-quantity" type="number" min="0.001" step="0.001" formControlName="quantity" /></div>
-                <div class="field"><label for="request-priority">Priority</label><select id="request-priority" formControlName="priority"><option value="Low">Low</option><option value="Normal">Normal</option><option value="High">High</option><option value="Urgent">Urgent</option></select></div>
-              </div>
-              <div class="field"><label for="related-drone">Related drone (optional)</label><input id="related-drone" type="text" formControlName="relatedDroneIdentifier" /></div>
-              <div class="field"><label for="request-reason">Why is this needed?</label><textarea id="request-reason" formControlName="reason"></textarea></div>
-              <button type="submit" [disabled]="componentTypes.length === 0">Save request draft</button>
-            </form>
+          <section class="inventory-card inventory-list" aria-labelledby="component-stock-title">
+            <div class="section-heading">
+              <div><h3 id="component-stock-title">Available components</h3><p>Stock shown here is used to calculate complete drones.</p></div>
+              <span>{{ componentTypes.length }} types</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Component</th><th>Available</th></tr></thead>
+                <tbody>
+                  @for (component of componentTypes; track component.id) {
+                    <tr><td><strong>{{ component.name }}</strong><span>{{ component.category }}</span></td><td>{{ availableQuantity(component.id) }} {{ component.unitOfMeasure }}</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </section>
         </div>
 
-        <section class="inventory-card inventory-list" aria-labelledby="availability-title">
-          <div class="section-heading"><div><h3 id="availability-title">Availability</h3><p>Only available items count toward a build. Quarantined stock remains visible but is excluded.</p></div><span>{{ componentTypes.length }} component types</span></div>
-          @if (componentTypes.length === 0 && !isLoadingInventory) { <p class="empty-state">Add the first component type to begin recording inventory.</p> }
+        <section class="inventory-card inventory-list" aria-labelledby="drone-requests-title">
+          <div class="section-heading">
+            <div><h3 id="drone-requests-title">Drone requests</h3><p>Requests are tracked by the drone configuration the donor asked for.</p></div>
+          </div>
+          @if (droneRequests.length === 0 && !isLoadingInventory) { <p class="empty-state">No drone requests have been recorded.</p> }
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Component</th><th>Available</th><th>Minimum / build</th><th>Notes</th></tr></thead>
+              <thead><tr><th>Drone</th><th>Quantity</th><th>Donor reference</th><th>Priority</th><th>Status</th></tr></thead>
               <tbody>
-                @for (component of componentTypes; track component.id) {
-                  <tr><td><strong>{{ component.name }}</strong><span>{{ component.category }}@if (component.partNumber) { · {{ component.partNumber }} }</span></td><td>{{ availableQuantity(component.id) }} {{ component.unitOfMeasure }}</td><td>{{ component.minimumQuantityPerBuild }} {{ component.unitOfMeasure }}</td><td>{{ component.compatibilityNotes || '—' }}</td></tr>
+                @for (request of droneRequests; track request.id) {
+                  <tr><td><strong>{{ request.configurationName }}</strong><span>{{ request.reason }}</span></td><td>{{ request.quantity }}</td><td>{{ request.donorReference || '—' }}</td><td>{{ request.priority }}</td><td><span class="status-pill">{{ request.status }}</span></td></tr>
                 }
               </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="inventory-card inventory-list" aria-labelledby="requests-title">
-          <div class="section-heading"><div><h3 id="requests-title">Component requests</h3><p>Drafts can be submitted and approved through the inventory API while access roles are being implemented.</p></div></div>
-          @if (requests.length === 0 && !isLoadingInventory) { <p class="empty-state">No component requests have been recorded.</p> }
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Component</th><th>Need</th><th>Received</th><th>Priority</th><th>Status</th></tr></thead>
-              <tbody>@for (request of requests; track request.id) { <tr><td><strong>{{ request.componentType.name }}</strong><span>{{ request.reason }}</span></td><td>{{ request.requestedQuantity }} {{ request.componentType.unitOfMeasure }}</td><td>{{ request.receivedQuantity }} {{ request.componentType.unitOfMeasure }}</td><td>{{ request.priority }}</td><td><span class="status-pill">{{ request.status }}</span></td></tr> }</tbody>
             </table>
           </div>
         </section>
@@ -118,39 +127,16 @@
       <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
         <div class="field">
           <label for="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            formControlName="userName"
-            autocomplete="username"
-            [attr.aria-invalid]="loginForm.controls.userName.invalid && loginForm.controls.userName.touched"
-          />
-          @if (loginForm.controls.userName.invalid && loginForm.controls.userName.touched) {
-            <p class="field-error">Enter your username.</p>
-          }
+          <input id="username" type="text" formControlName="userName" autocomplete="username" [attr.aria-invalid]="loginForm.controls.userName.invalid && loginForm.controls.userName.touched" />
+          @if (loginForm.controls.userName.invalid && loginForm.controls.userName.touched) { <p class="field-error">Enter your username.</p> }
         </div>
-
         <div class="field">
           <label for="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            formControlName="password"
-            autocomplete="current-password"
-            [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
-          />
-          @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
-            <p class="field-error">Enter your password.</p>
-          }
+          <input id="password" type="password" formControlName="password" autocomplete="current-password" [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched" />
+          @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) { <p class="field-error">Enter your password.</p> }
         </div>
-
-        @if (errorMessage) {
-          <p class="form-error" role="alert">{{ errorMessage }}</p>
-        }
-
-        <button type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Signing in…' : 'Sign in to DroneAid' }}
-        </button>
+        @if (errorMessage) { <p class="form-error" role="alert">{{ errorMessage }}</p> }
+        <button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Signing in…' : 'Sign in to DroneAid' }}</button>
       </form>
     }
   </section>

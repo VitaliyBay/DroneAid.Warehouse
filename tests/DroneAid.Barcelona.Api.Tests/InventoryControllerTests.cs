@@ -128,6 +128,70 @@ public sealed class InventoryControllerTests
         Assert.Equal(ComponentRequestStatus.Draft, (await database.ComponentRequests.SingleAsync()).Status);
     }
 
+    [Fact]
+    public async Task CreateDroneRequest_records_the_selected_drone_configuration_and_audit_event()
+    {
+        await using var database = CreateDatabase();
+        var controller = new InventoryController(database);
+
+        var result = await controller.CreateDroneRequest(new CreateDroneRequestRequest
+        {
+            ConfigurationId = "digital",
+            Quantity = 2,
+            DonorReference = "Donor-48",
+            Reason = "Two digital drones requested for the workshop.",
+            Priority = ComponentRequestPriority.High,
+            RequestedBy = "Coordinator"
+        }, CancellationToken.None);
+
+        var created = Assert.IsType<CreatedAtActionResult>(result.Result);
+        var droneRequest = Assert.IsType<DroneRequest>(created.Value);
+        Assert.Equal("digital", droneRequest.ConfigurationId);
+        Assert.Equal("Digital drone", droneRequest.ConfigurationName);
+        Assert.Equal(2, droneRequest.Quantity);
+        var audit = await database.InventoryAuditEvents.SingleAsync();
+        Assert.Equal("DroneRequested", audit.Action);
+        Assert.Equal(droneRequest.Id, audit.DroneRequestId);
+    }
+
+    [Fact]
+    public async Task GetBuildCapacity_uses_only_available_stock_when_calculating_complete_drones()
+    {
+        await using var database = CreateDatabase();
+        var frame = new ComponentType
+        {
+            Name = "Frame",
+            Category = "Frame",
+            UnitOfMeasure = "each",
+            MinimumQuantityPerBuild = 1
+        };
+        database.ComponentTypes.Add(frame);
+        database.ComponentStock.AddRange(
+            new ComponentStock
+            {
+                ComponentTypeId = frame.Id,
+                Quantity = 3,
+                AvailabilityState = StockAvailabilityState.Available
+            },
+            new ComponentStock
+            {
+                ComponentTypeId = frame.Id,
+                Quantity = 5,
+                AvailabilityState = StockAvailabilityState.Quarantined
+            });
+        await database.SaveChangesAsync();
+        var controller = new InventoryController(database);
+
+        var result = await controller.GetBuildCapacity(CancellationToken.None);
+
+        var response = Assert.IsType<OkObjectResult>(result.Result);
+        var capacity = Assert.IsAssignableFrom<IReadOnlyList<DroneBuildCapacityResponse>>(response.Value);
+        var digital = Assert.Single(capacity, item => item.ConfigurationId == "digital");
+        Assert.Equal(0, digital.AvailableBuilds);
+        var frameAvailability = Assert.Single(digital.Components, item => item.ComponentName == "Frame");
+        Assert.Equal(3, frameAvailability.AvailableQuantity);
+    }
+
     private static async Task<ComponentType> CreateComponentType(DroneAidDbContext database)
     {
         var componentType = new ComponentType

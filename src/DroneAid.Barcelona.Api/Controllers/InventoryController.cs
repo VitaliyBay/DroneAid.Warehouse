@@ -1,5 +1,6 @@
 using DroneAid.Barcelona.Api.Contracts.Inventory;
 using DroneAid.Barcelona.Api.Data;
+using DroneAid.Barcelona.Api.Inventory;
 using DroneAid.Barcelona.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,80 @@ public sealed class InventoryController(DroneAidDbContext database) : Controller
     [HttpGet("component-types")]
     public async Task<ActionResult<IReadOnlyList<ComponentType>>> GetComponentTypes(CancellationToken cancellationToken) =>
         Ok(await database.ComponentTypes.AsNoTracking().OrderBy(item => item.Category).ThenBy(item => item.Name).ToListAsync(cancellationToken));
+
+    [HttpGet("build-capacity")]
+    public async Task<ActionResult<IReadOnlyList<DroneBuildCapacityResponse>>> GetBuildCapacity(CancellationToken cancellationToken)
+    {
+        var componentTypes = await database.ComponentTypes.AsNoTracking().ToListAsync(cancellationToken);
+        var availableStock = await database.ComponentStock.AsNoTracking()
+            .Include(item => item.ComponentType)
+            .Where(item => item.AvailabilityState == StockAvailabilityState.Available)
+            .ToListAsync(cancellationToken);
+        var componentTypesByName = componentTypes
+            .GroupBy(item => item.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        var availableByComponentName = availableStock
+            .GroupBy(item => item.ComponentType.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity), StringComparer.OrdinalIgnoreCase);
+
+        var capacity = DroneBuildConfigurations.All.Select(configuration =>
+        {
+            var components = configuration.Requirements.Select(requirement =>
+            {
+                componentTypesByName.TryGetValue(requirement.ComponentName, out var componentType);
+                availableByComponentName.TryGetValue(requirement.ComponentName, out var availableQuantity);
+                return new DroneComponentAvailabilityResponse(
+                    requirement.ComponentName,
+                    requirement.Quantity,
+                    availableQuantity,
+                    componentType?.UnitOfMeasure ?? "each");
+            }).ToList();
+            var availableBuilds = components.Count == 0
+                ? 0
+                : components.Min(component => (int)Math.Floor(component.AvailableQuantity / component.RequiredQuantity));
+            return new DroneBuildCapacityResponse(
+                configuration.Id,
+                configuration.Name,
+                configuration.Description,
+                availableBuilds,
+                components);
+        }).ToList();
+
+        return Ok(capacity);
+    }
+
+    [HttpGet("drone-requests")]
+    public async Task<ActionResult<IReadOnlyList<DroneRequest>>> GetDroneRequests(CancellationToken cancellationToken) =>
+        Ok(await database.DroneRequests.AsNoTracking()
+            .OrderByDescending(item => item.CreatedAtUtc)
+            .ToListAsync(cancellationToken));
+
+    [HttpPost("drone-requests")]
+    public async Task<ActionResult<DroneRequest>> CreateDroneRequest(
+        CreateDroneRequestRequest request,
+        CancellationToken cancellationToken)
+    {
+        var configuration = DroneBuildConfigurations.Find(request.ConfigurationId);
+        if (configuration is null)
+        {
+            return BadRequest(new { message = "Choose either the Digital or Analog drone configuration." });
+        }
+
+        var droneRequest = new DroneRequest
+        {
+            ConfigurationId = configuration.Id,
+            ConfigurationName = configuration.Name,
+            Quantity = request.Quantity,
+            Reason = request.Reason.Trim(),
+            Priority = request.Priority,
+            RequestedBy = request.RequestedBy.Trim(),
+            DonorReference = CleanOptional(request.DonorReference)
+        };
+        database.DroneRequests.Add(droneRequest);
+        AddAuditEvent("DroneRequested", request.RequestedBy, droneRequest.Reason, droneRequestId: droneRequest.Id);
+        await database.SaveChangesAsync(cancellationToken);
+        return CreatedAtAction(nameof(GetDroneRequests), droneRequest);
+    }
 
     [HttpPost("component-types")]
     public async Task<ActionResult<ComponentType>> CreateComponentType(
@@ -224,7 +299,8 @@ public sealed class InventoryController(DroneAidDbContext database) : Controller
         string reason,
         Guid? componentTypeId = null,
         Guid? componentStockId = null,
-        Guid? componentRequestId = null) =>
+        Guid? componentRequestId = null,
+        Guid? droneRequestId = null) =>
         database.InventoryAuditEvents.Add(new InventoryAuditEvent
         {
             Action = action,
@@ -232,7 +308,8 @@ public sealed class InventoryController(DroneAidDbContext database) : Controller
             Reason = reason.Trim(),
             ComponentTypeId = componentTypeId,
             ComponentStockId = componentStockId,
-            ComponentRequestId = componentRequestId
+            ComponentRequestId = componentRequestId,
+            DroneRequestId = droneRequestId
         });
 
     private static string? CleanOptional(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

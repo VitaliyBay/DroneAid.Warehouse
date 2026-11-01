@@ -10,11 +10,27 @@ component to the drone that uses it.
 ## Implemented first slice
 
 The current application provides a component catalogue, individually traceable
-stock receipts, quantity adjustments, and replenishment requests. The web
-workspace lets a signed-in user add catalogue entries, record stock as
-available or quarantined, see available stock by component type, and create a
-request draft. The API additionally supports submitting, approving, ordering,
-and partially or fully receiving a request.
+stock receipts, quantity adjustments, and replenishment requests. Its primary
+workflow is now drone-centred: a donor request selects either the predefined
+Digital or Analog drone configuration, rather than asking a coordinator to
+assemble a component list manually. The workspace calculates the number of
+complete drones that can be built from available stock and identifies the
+components blocking the next build. It also shows the available component
+quantities that underpin that calculation.
+
+The initial Digital and Analog configurations share the standard frame, flight
+controller, motors, electronic speed controllers, propellers, receiver,
+battery, antenna, and fasteners. Digital builds use a digital video unit;
+Analog builds use an analog camera and video transmitter. The API seeds these
+standard catalogue entries for a new local database. Component-level request,
+receipt, and adjustment endpoints remain available for replenishment work, but
+manual catalogue creation is no longer a primary workspace action.
+
+The signed-in workspace uses a compact, full-width responsive layout: it hides
+the public marketing banner after login, shows Digital and Analog capacity
+first, and reflows action cards to one column as space becomes constrained.
+All controls stay within their card, and required inputs expose clear, inline
+validation feedback after an attempted submission.
 
 Every catalogue creation, receipt, adjustment, request action, and request
 receipt creates an inventory audit event containing the actor and reason. A
@@ -84,7 +100,8 @@ reservation, release, receipt, and installation records who made it and why.
 
 ## Decisions to make
 
-Agree the initial supported build configurations, which items require serial or
-batch tracking, whether supplier and purchase-price data is in scope, who may
-approve purchases, stocktake frequency, and the process for donated components
-that do not match the standard catalogue.
+Confirm the detailed part/model choices for the initial Digital and Analog
+configurations, which items require serial or batch tracking, whether supplier
+and purchase-price data is in scope, who may approve purchases, stocktake
+frequency, and the process for donated components that do not match the
+standard catalogue.
