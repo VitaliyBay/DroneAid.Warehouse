@@ -57,10 +57,12 @@ test password is stored only as a salted PBKDF2 hash. This seed account exists
 solely to verify the initial end-to-end login flow and must be replaced or
 removed before any public deployment.
 
-The first response identifies the authenticated user and role. Persistent
-sessions, access tokens, password reset, and production identity-provider
-integration remain to be implemented before this can protect operational
-features.
+The responsive Angular login page calls this endpoint through `/api`, allowing
+the same-origin Docker deployment and the local development proxy to use the
+same request. The first response identifies the authenticated user and role.
+Persistent sessions, access tokens, password reset, and production
+identity-provider integration remain to be implemented before this can protect
+operational features.
 
 ## Decisions to make
 
