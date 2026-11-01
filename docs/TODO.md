@@ -46,6 +46,8 @@ section.
 - [x] Implement the first component-inventory slice: predefined Digital and
   Analog configurations, drone-request workflow, build-capacity calculation,
   audited component receipts and adjustments, and responsive workspace view.
+- [x] Accept readable enum values, such as request priority `Normal`, in MVC
+  API request payloads.
 - [ ] Establish API error handling, validation, logging, and health checks.
 - [ ] Add drone-specific component reservations, releases, and installation
   records after build configurations and drone records are available.

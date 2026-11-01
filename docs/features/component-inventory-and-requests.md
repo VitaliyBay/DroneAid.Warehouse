@@ -32,6 +32,9 @@ first, and reflows action cards to one column as space becomes constrained.
 All controls stay within their card, and required inputs expose clear, inline
 validation feedback after an attempted submission.
 
+The API accepts the human-readable priority names used by the workspace, such
+as `Normal` and `High`, for both drone and component requests.
+
 Every catalogue creation, receipt, adjustment, request action, and request
 receipt creates an inventory audit event containing the actor and reason. A
 request keeps its original requested quantity; receipt records instead add to

@@ -1,6 +1,5 @@
 using DroneAid.Barcelona.Api.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +9,7 @@ var connectionString = builder.Configuration.GetConnectionString("DroneAidDataba
 
 builder.Services.AddDbContext<DroneAidDbContext>(options =>
     options.UseNpgsql(connectionString));
-builder.Services.AddControllers();
-builder.Services.ConfigureHttpJsonOptions(options =>
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddDroneAidControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularDevelopment", policy =>
