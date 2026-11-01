@@ -2,30 +2,34 @@
 
 ## Project Structure & Module Organization
 
-This repository is currently a minimal .NET-oriented scaffold. At present,
-`README.md` contains the project identity and `.gitignore` defines .NET build
-artifacts to exclude; no solution, source projects, or test projects have been
-committed yet. Keep the root focused on repository-level files. When adding the
-application, use a conventional layout such as `src/DroneAid.Warehouse/` for
-production code and `tests/DroneAid.Warehouse.Tests/` for its matching test
-project. Put feature code in focused folders or namespaces (for example,
-`Inventory/`, `Dispatch/`, and `Infrastructure/`) rather than a catch-all
-`Helpers/` directory.
+The repository contains an Angular frontend in `src/droneaid-barcelona-web/`,
+an ASP.NET Core API in `src/DroneAid.Barcelona.Api/`, and .NET tests in
+`tests/DroneAid.Barcelona.Api.Tests/`. `DroneAid.Barcelona.sln` contains the
+.NET projects. Keep the root focused on repository-level files and add future
+backend projects under `src/` with a matching project under `tests/`. Put
+feature code in focused folders or namespaces (for example, `Inventory/`,
+`Dispatch/`, and `Infrastructure/`) rather than a catch-all `Helpers/`
+directory.
 
 ## Build, Test, and Development Commands
 
-Once a solution (`*.sln`) is introduced, run commands from the repository root:
+Run .NET and Docker commands from the repository root:
 
 ```powershell
-dotnet restore                 # Restore NuGet dependencies
-dotnet build <solution>.sln    # Compile all projects
-dotnet test <solution>.sln     # Run the automated tests
-dotnet format <solution>.sln   # Apply .NET formatter and analyzer fixes
+dotnet restore DroneAid.Barcelona.sln  # Restore NuGet dependencies
+dotnet build DroneAid.Barcelona.sln    # Compile the API and tests
+dotnet test DroneAid.Barcelona.sln     # Run API tests
+dotnet format DroneAid.Barcelona.sln   # Apply .NET formatting
+docker compose up --build              # Run web, API, and PostgreSQL locally
 ```
+
+For frontend checks, run `npm run build` from
+`src/droneaid-barcelona-web/`. Copy `.env.example` to `.env` and set its local
+database password before using Docker Compose. The Angular UI is then available
+at `http://localhost:4200`.
 
 Do not commit `bin/`, `obj/`, coverage output, NuGet packages, local `.env`
 files, or test-result directories; these are already covered by `.gitignore`.
-Update this section when the actual solution and any local-run command exist.
 
 ## Coding Style & Naming Conventions
 

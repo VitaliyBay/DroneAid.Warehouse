@@ -52,6 +52,8 @@ section.
 
 ## Deployment and operations
 
+- [ ] Verify the Docker Compose stack end-to-end with Docker Desktop running:
+  sign in through the browser and confirm PostgreSQL contains the seeded user.
 - [ ] Choose the host, deployment region, domain name, and production owner.
 - [ ] Configure HTTPS, firewall rules, and least-privilege server access.
 - [ ] Automate encrypted off-host PostgreSQL backups and test restoration.
