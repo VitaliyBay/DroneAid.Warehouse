@@ -6,6 +6,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   and initial scope.
 - [Repository to-do](TODO.md) is the living checklist of product decisions,
   implementation work, and operational readiness tasks.
+- [Codex skills and hooks](codex-skills.md) explains the repository-local AI
+  workflows and optional Git checks.
 - [Architecture](architecture/README.md) defines the Angular, ASP.NET Core,
   PostgreSQL, Docker, and hosting approach.
 - [Identification and access](features/identification-and-access.md) defines

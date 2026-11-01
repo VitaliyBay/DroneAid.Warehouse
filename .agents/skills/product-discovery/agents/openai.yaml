@@ -1,0 +1,4 @@
+interface:
+  display_name: "Discover Feature"
+  short_description: "Clarify and document a proposed feature"
+  default_prompt: "Use $product-discovery to clarify and document a feature idea."

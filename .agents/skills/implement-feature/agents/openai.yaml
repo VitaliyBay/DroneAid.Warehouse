@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Feature"
+  short_description: "Build a documented DroneAid feature"
+  default_prompt: "Use $implement-feature to implement the documented feature."

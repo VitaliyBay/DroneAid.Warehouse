@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+set -eu
+
+changed_files="$(git diff --cached --name-only)"
+
+if printf '%s\n' "$changed_files" | grep -Eq '^(DroneAid\.Barcelona\.sln|src/DroneAid\.Barcelona\.Api/|tests/DroneAid\.Barcelona\.Api\.Tests/)'; then
+  echo "Running .NET tests for staged API changes..."
+  dotnet test DroneAid.Barcelona.sln --no-restore
+fi
+
+if printf '%s\n' "$changed_files" | grep -Eq '^src/droneaid-barcelona-web/'; then
+  echo "Building Angular frontend for staged frontend changes..."
+  (
+    cd src/droneaid-barcelona-web
+    npm run build
+  )
+fi

@@ -29,6 +29,8 @@ section.
 
 ## Application foundation
 
+- [x] Add repository-local Codex skills and an optional pre-commit validation
+  hook.
 - [x] Create the Angular frontend workspace and ASP.NET Core API solution.
 - [x] Create the initial PostgreSQL user schema for local development.
 - [ ] Replace development database initialization with versioned EF Core

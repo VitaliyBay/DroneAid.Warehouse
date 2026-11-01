@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Local Stack"
+  short_description: "Run and validate the local application stack"
+  default_prompt: "Use $verify-local-stack to verify the local DroneAid stack."
