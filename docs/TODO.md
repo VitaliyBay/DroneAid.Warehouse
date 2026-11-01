@@ -29,11 +29,14 @@ section.
 
 ## Application foundation
 
-- [ ] Create the Angular frontend workspace and ASP.NET Core API solution.
-- [ ] Create the PostgreSQL schema and database migration strategy.
+- [x] Create the Angular frontend workspace and ASP.NET Core API solution.
+- [x] Create the initial PostgreSQL user schema for local development.
+- [ ] Replace development database initialization with versioned EF Core
+  migrations before production.
 - [ ] Implement authentication, role-based authorization, and audit logging.
-- [ ] Add Dockerfiles and a Docker Compose setup for web, API, and database.
-- [ ] Configure environment-based secrets; do not commit credentials.
+- [x] Add Dockerfiles and a Docker Compose setup for web, API, and database.
+- [x] Configure local environment-based database credentials without committing
+  the `.env` file.
 - [ ] Establish API error handling, validation, logging, and health checks.
 
 ## Quality and user experience

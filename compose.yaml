@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: droneaid
+      POSTGRES_USER: droneaid
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env before starting Docker Compose.}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./src/DroneAid.Barcelona.Api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DroneAidDatabase: Host=db;Port=5432;Database=droneaid;Username=droneaid;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env before starting Docker Compose.}
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./src/droneaid-barcelona-web
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

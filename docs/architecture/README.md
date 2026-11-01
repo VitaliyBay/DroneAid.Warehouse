@@ -54,11 +54,13 @@ phone, tablet, laptop, and wide-desktop viewport widths before release.
 
 ## Docker deployment
 
-Use Docker Compose for local development and the first deployment. The planned
-services are `web` (Angular/Caddy), `api` (ASP.NET Core), and `db`
-(PostgreSQL). PostgreSQL uses a named persistent volume. The compose file must
-define health checks, restart policies, environment-based configuration, and
-an internal network for the API and database.
+Use Docker Compose for local development and the first deployment. The initial
+local implementation provides `web` (Angular/Caddy), `api` (ASP.NET Core), and
+`db` (PostgreSQL) services in `compose.yaml`. PostgreSQL uses a named persistent
+volume. The database waits for a health check before the API starts; the API is
+available only to the web container, while the web container publishes the
+application on port 4200 locally. Database configuration is injected from an
+uncommitted `.env` file created from `.env.example`.
 
 Back up the PostgreSQL database off the server on a regular schedule and test
 restoration before relying on the application. A server backup alone is not a
