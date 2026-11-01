@@ -7,6 +7,29 @@ has reserved, and has installed. The feature should prevent a build from
 starting without essential parts and preserve traceability from donor-supported
 component to the drone that uses it.
 
+## Implemented first slice
+
+The current application provides a component catalogue, individually traceable
+stock receipts, quantity adjustments, and replenishment requests. The web
+workspace lets a signed-in user add catalogue entries, record stock as
+available or quarantined, see available stock by component type, and create a
+request draft. The API additionally supports submitting, approving, ordering,
+and partially or fully receiving a request.
+
+Every catalogue creation, receipt, adjustment, request action, and request
+receipt creates an inventory audit event containing the actor and reason. A
+request keeps its original requested quantity; receipt records instead add to
+its separate received quantity and create a new stock record with its own
+source reference and availability state. Stock can never be adjusted below
+zero.
+
+The current login foundation is not yet a secure authorization system. The API
+temporarily accepts the named actor supplied by the workspace; enforcing the
+coordinator, builder, and mentor permissions below depends on the
+Identification and Access feature. Drone reservations, releases, and
+installations are also deferred until the supported build configurations and
+drone records are implemented.
+
 ## Component catalogue and stock
 
 Maintain a catalogue of component types used in supported drone configurations.

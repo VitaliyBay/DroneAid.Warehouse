@@ -42,7 +42,12 @@ section.
 - [x] Add Dockerfiles and a Docker Compose setup for web, API, and database.
 - [x] Configure local environment-based database credentials without committing
   the `.env` file.
+- [x] Implement the first component-inventory slice: catalogue, audited stock
+  receipts and adjustments, replenishment request workflow, and responsive
+  workspace view.
 - [ ] Establish API error handling, validation, logging, and health checks.
+- [ ] Add drone-specific component reservations, releases, and installation
+  records after build configurations and drone records are available.
 
 ## Quality and user experience
 

@@ -1,4 +1,4 @@
-<main class="page-shell">
+<main class="page-shell" [class.workspace-shell]="authenticatedUser">
   <section class="intro" aria-labelledby="application-title">
     <p class="eyebrow">DropAid Community</p>
     <h1 id="application-title">DroneAid<br />Barcelona</h1>
@@ -12,13 +12,101 @@
     </div>
   </section>
 
-  <section class="login-panel" aria-labelledby="login-title">
+  <section class="login-panel" [class.inventory-panel]="authenticatedUser" aria-labelledby="login-title">
     @if (authenticatedUser; as user) {
-      <div class="success-state" role="status">
-        <p class="eyebrow">Signed in</p>
-        <h2 id="login-title">Welcome, {{ user.userName }}</h2>
-        <p>You are signed in as <strong>{{ user.role }}</strong>.</p>
-        <p class="muted">The DroneAid workspace is ready for its next feature.</p>
+      <div class="inventory-workspace" aria-labelledby="inventory-title">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow">Signed in as {{ user.userName }}</p>
+            <h2 id="inventory-title">Component inventory</h2>
+            <p>Record what is on hand, what needs attention, and what must be replenished.</p>
+          </div>
+          <button class="secondary-button" type="button" (click)="loadInventory()" [disabled]="isLoadingInventory">
+            {{ isLoadingInventory ? 'Refreshing…' : 'Refresh' }}
+          </button>
+        </header>
+
+        @if (inventoryError) {
+          <p class="form-error" role="alert">{{ inventoryError }}</p>
+        }
+        @if (inventoryMessage) {
+          <p class="success-message" role="status">{{ inventoryMessage }}</p>
+        }
+
+        <div class="inventory-grid">
+          <section class="inventory-card" aria-labelledby="catalogue-title">
+            <h3 id="catalogue-title">Add a component type</h3>
+            <form [formGroup]="componentTypeForm" (ngSubmit)="createComponentType()" novalidate>
+              <div class="field"><label for="component-name">Name</label><input id="component-name" type="text" formControlName="name" /></div>
+              <div class="field"><label for="component-category">Category</label><input id="component-category" type="text" formControlName="category" placeholder="e.g. Motor" /></div>
+              <div class="form-columns">
+                <div class="field"><label for="manufacturer">Manufacturer / model</label><input id="manufacturer" type="text" formControlName="manufacturerOrModel" /></div>
+                <div class="field"><label for="part-number">Part number</label><input id="part-number" type="text" formControlName="partNumber" /></div>
+              </div>
+              <div class="form-columns">
+                <div class="field"><label for="unit">Unit</label><input id="unit" type="text" formControlName="unitOfMeasure" /></div>
+                <div class="field"><label for="minimum">Minimum per build</label><input id="minimum" type="number" min="0.001" step="0.001" formControlName="minimumQuantityPerBuild" /></div>
+              </div>
+              <div class="field"><label for="compatibility">Compatibility notes</label><textarea id="compatibility" formControlName="compatibilityNotes"></textarea></div>
+              <button type="submit">Add to catalogue</button>
+            </form>
+          </section>
+
+          <section class="inventory-card" aria-labelledby="receipt-title">
+            <h3 id="receipt-title">Record a receipt</h3>
+            <form [formGroup]="receiptForm" (ngSubmit)="receiveStock()" novalidate>
+              <div class="field"><label for="receipt-component">Component type</label><select id="receipt-component" formControlName="componentTypeId"><option value="" disabled>Select a component</option>@for (component of componentTypes; track component.id) { <option [value]="component.id">{{ component.name }} · {{ component.category }}</option> }</select></div>
+              <div class="form-columns">
+                <div class="field"><label for="receipt-quantity">Quantity</label><input id="receipt-quantity" type="number" min="0.001" step="0.001" formControlName="quantity" /></div>
+                <div class="field"><label for="receipt-state">Availability</label><select id="receipt-state" formControlName="availabilityState"><option value="Available">Available</option><option value="Quarantined">Quarantined</option></select></div>
+              </div>
+              <div class="field"><label for="serial-batch">Serial number or batch</label><input id="serial-batch" type="text" formControlName="serialNumberOrBatch" /></div>
+              <div class="field"><label for="source-reference">Source / order reference</label><input id="source-reference" type="text" formControlName="sourceReference" /></div>
+              <div class="field"><label for="receipt-reason">Reason or inspection result</label><textarea id="receipt-reason" formControlName="reason"></textarea></div>
+              <button type="submit" [disabled]="componentTypes.length === 0">Record receipt</button>
+            </form>
+          </section>
+
+          <section class="inventory-card" aria-labelledby="request-title">
+            <h3 id="request-title">Create a request</h3>
+            <form [formGroup]="requestForm" (ngSubmit)="createRequest()" novalidate>
+              <div class="field"><label for="request-component">Component type</label><select id="request-component" formControlName="componentTypeId"><option value="" disabled>Select a component</option>@for (component of componentTypes; track component.id) { <option [value]="component.id">{{ component.name }} · {{ component.category }}</option> }</select></div>
+              <div class="form-columns">
+                <div class="field"><label for="request-quantity">Quantity needed</label><input id="request-quantity" type="number" min="0.001" step="0.001" formControlName="quantity" /></div>
+                <div class="field"><label for="request-priority">Priority</label><select id="request-priority" formControlName="priority"><option value="Low">Low</option><option value="Normal">Normal</option><option value="High">High</option><option value="Urgent">Urgent</option></select></div>
+              </div>
+              <div class="field"><label for="related-drone">Related drone (optional)</label><input id="related-drone" type="text" formControlName="relatedDroneIdentifier" /></div>
+              <div class="field"><label for="request-reason">Why is this needed?</label><textarea id="request-reason" formControlName="reason"></textarea></div>
+              <button type="submit" [disabled]="componentTypes.length === 0">Save request draft</button>
+            </form>
+          </section>
+        </div>
+
+        <section class="inventory-card inventory-list" aria-labelledby="availability-title">
+          <div class="section-heading"><div><h3 id="availability-title">Availability</h3><p>Only available items count toward a build. Quarantined stock remains visible but is excluded.</p></div><span>{{ componentTypes.length }} component types</span></div>
+          @if (componentTypes.length === 0 && !isLoadingInventory) { <p class="empty-state">Add the first component type to begin recording inventory.</p> }
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Component</th><th>Available</th><th>Minimum / build</th><th>Notes</th></tr></thead>
+              <tbody>
+                @for (component of componentTypes; track component.id) {
+                  <tr><td><strong>{{ component.name }}</strong><span>{{ component.category }}@if (component.partNumber) { · {{ component.partNumber }} }</span></td><td>{{ availableQuantity(component.id) }} {{ component.unitOfMeasure }}</td><td>{{ component.minimumQuantityPerBuild }} {{ component.unitOfMeasure }}</td><td>{{ component.compatibilityNotes || '—' }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="inventory-card inventory-list" aria-labelledby="requests-title">
+          <div class="section-heading"><div><h3 id="requests-title">Component requests</h3><p>Drafts can be submitted and approved through the inventory API while access roles are being implemented.</p></div></div>
+          @if (requests.length === 0 && !isLoadingInventory) { <p class="empty-state">No component requests have been recorded.</p> }
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Component</th><th>Need</th><th>Received</th><th>Priority</th><th>Status</th></tr></thead>
+              <tbody>@for (request of requests; track request.id) { <tr><td><strong>{{ request.componentType.name }}</strong><span>{{ request.reason }}</span></td><td>{{ request.requestedQuantity }} {{ request.componentType.unitOfMeasure }}</td><td>{{ request.receivedQuantity }} {{ request.componentType.unitOfMeasure }}</td><td>{{ request.priority }}</td><td><span class="status-pill">{{ request.status }}</span></td></tr> }</tbody>
+            </table>
+          </div>
+        </section>
       </div>
     } @else {
       <header>
