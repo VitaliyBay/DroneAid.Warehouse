@@ -12,11 +12,11 @@ their assigned work.
 | Role | Primary access |
 | --- | --- |
 | Administrator | Manage users, roles, and all records; resolve access issues. |
-| Warehouse / logistics coordinator | Manage component allocation, shipment, and receipt updates. |
+| Warehouse / logistics coordinator | Manage component allocation and shipment updates. |
 | Builder | View assigned builds, components, and assembly guidance; record build progress. |
 | Mentor / quality controller | View relevant builds; create and resolve assembly or quality findings. |
 | Flight-test staff | View approved drones; submit and review flight-test results. |
-| Donor | View only the progress and destination information explicitly linked to their donation. |
+| Donor | Deferred to the next version; no donor-facing access exists in the MVP. |
 
 A person may hold more than one operational role. Permissions must be granted
 by role, not by a user's job title alone. The application should deny access by
@@ -40,8 +40,9 @@ default when no permission has been assigned.
 - Use unique accounts; do not share community logins.
 - Allow an administrator to invite, activate, deactivate, and assign roles to
   internal users.
-- Give donors a restricted view with no access to other donations, build notes,
-  recipient contact details, or internal issue records.
+- Do not provide donor-facing accounts or progress pages in the MVP. When the
+  deferred donor role is introduced, it must not expose other donations, build
+  notes, recipient contact details, or internal issue records.
 - Protect personal and delivery data with least-privilege access.
 - Record sign-in-related administration events and changes to roles or account
   status in an audit trail.
@@ -68,6 +69,7 @@ operational features.
 
 Before implementation, decide the approved sign-in method (for example,
 email/password, passwordless email link, or a community identity provider),
-whether donor access uses accounts or secure progress links, required
-multi-factor authentication for administrators, password-reset ownership, and
-account-retention rules. These decisions should be documented here once agreed.
+whether the deferred donor access uses accounts or secure progress links,
+required multi-factor authentication for administrators, password-reset
+ownership, and account-retention rules. These decisions should be documented
+here once agreed.

@@ -18,6 +18,9 @@ This directory holds the product documentation for DroneAid Warehouse.
   defines stock, replenishment, and allocation to a drone build.
 - [Assembly guidance and issues](features/assembly-guidance-and-issues.md) defines
   build instructions and mentor-led correction workflows.
+- [Quality, flight test, and delivery workflow](features/quality-flight-and-delivery.md)
+  defines the required inspections, repairs, evidence links, release gate, and
+  shipment records for the internal MVP.
 
 Architecture documentation belongs in `architecture/`; feature specifications
 belong in `features/`, with one lowercase hyphenated Markdown file per feature.

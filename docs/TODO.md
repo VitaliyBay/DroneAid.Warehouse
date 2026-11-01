@@ -20,9 +20,12 @@ section.
 
 ## Feature documentation to create
 
-- [ ] Quality control inspection and approval.
-- [ ] Flight-test records and failure handling.
-- [ ] Shipment, recipient confirmation, and delivery tracking.
+- [x] Quality control inspection and approval (documented in
+  `features/quality-flight-and-delivery.md`).
+- [x] Flight-test records and failure handling (documented in
+  `features/quality-flight-and-delivery.md`).
+- [x] Shipment, recipient confirmation, and delivery tracking (documented in
+  `features/quality-flight-and-delivery.md`).
 - [ ] Donations and donor-facing progress updates.
 - [ ] Notifications and reminders.
 - [ ] Reporting and operational dashboards.
@@ -51,6 +54,9 @@ section.
   readable error messages.
 - [ ] Define privacy, retention, and deletion rules for donor, recipient, and
   shipment data.
+- [ ] Choose an organization-owned evidence-link provider, define access and
+  retention rules, and verify backup/recovery for linked flight videos and
+  attachments.
 
 ## Deployment and operations
 

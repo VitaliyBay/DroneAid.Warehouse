@@ -26,22 +26,22 @@ Each drone should progress through a tracked workflow:
    such as reassembly, soldering, resoldering, or replacement.
 5. The drone receives a flight test. The result records pass/fail status and
    any discovered problems.
-6. After successful checks, the drone is marked ready for shipment, then
-   shipped, and finally received by its recipient.
+6. After successful checks, the drone is marked ready for shipment and then
+   shipped to its confirmed destination.
 
 ## People and responsibilities
 
 Likely users include donors, builders, mentors, quality-control and flight-test
 staff, warehouse or logistics coordinators, and administrators. Access should
 be role-aware: for example, mentors record assembly findings, testers submit
-flight results, and logistics staff update shipment and receipt status.
+flight results, and logistics staff update shipment status.
 
 ## Information to preserve
 
 For every drone, retain a unique identifier; component allocation; current
 workflow status; assembly and inspection history; linked issues and their
 resolution; flight-test outcomes; donor/recipient information appropriate for
-their permissions; and shipment/receipt milestones. Track who made material
+their permissions; and shipment milestones. Track who made material
 status changes and when.
 
 ## Scope to decide next
