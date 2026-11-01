@@ -41,7 +41,8 @@ section.
 
 ## Quality and user experience
 
-- [ ] Add automated unit, integration, and end-to-end tests.
+- [x] Add initial automated unit tests for password hashing and login behavior.
+- [ ] Add database-backed integration tests and browser end-to-end tests.
 - [ ] Set formatting, linting, static analysis, and test checks in CI.
 - [ ] Verify all core workflows on phone, tablet, laptop, and desktop viewports.
 - [ ] Review accessibility: keyboard operation, labels, focus, contrast, and

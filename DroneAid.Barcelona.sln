@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9DB45CAE-6A5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroneAid.Barcelona.Api", "src\DroneAid.Barcelona.Api\DroneAid.Barcelona.Api.csproj", "{6D53C473-9944-4E34-A27A-D62776B8AB9A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA2A0C2F-4363-40FE-B5DB-B8A6719D23B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroneAid.Barcelona.Api.Tests", "tests\DroneAid.Barcelona.Api.Tests\DroneAid.Barcelona.Api.Tests.csproj", "{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +24,13 @@ Global
 		{6D53C473-9944-4E34-A27A-D62776B8AB9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D53C473-9944-4E34-A27A-D62776B8AB9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D53C473-9944-4E34-A27A-D62776B8AB9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6D53C473-9944-4E34-A27A-D62776B8AB9A} = {9DB45CAE-6A5B-4975-8FC2-C59ECA313F5A}
+		{7E0F6575-9955-4EE6-9B40-957F9E7EFBA3} = {FA2A0C2F-4363-40FE-B5DB-B8A6719D23B6}
 	EndGlobalSection
 EndGlobal
