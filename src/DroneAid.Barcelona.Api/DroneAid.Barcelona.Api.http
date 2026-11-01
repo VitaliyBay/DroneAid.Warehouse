@@ -1,6 +1,11 @@
-@DroneAid.Barcelona.Api_HostAddress = http://localhost:5279
+@DroneAidBarcelonaApi_HostAddress = http://localhost:8080
 
-GET {{DroneAid.Barcelona.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{DroneAidBarcelonaApi_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "DAB_Test",
+  "password": "qwerty123"
+}
 
 ###

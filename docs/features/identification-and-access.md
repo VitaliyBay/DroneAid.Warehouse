@@ -48,6 +48,20 @@ default when no permission has been assigned.
 - Present clear messages for unauthorized access without exposing protected
   information.
 
+## Initial local implementation
+
+The API provides `POST /api/auth/login`, which validates the supplied username
+and password against the PostgreSQL `users` table. On a new local database, it
+creates the development-only administrator account `DAB_Test`; the requested
+test password is stored only as a salted PBKDF2 hash. This seed account exists
+solely to verify the initial end-to-end login flow and must be replaced or
+removed before any public deployment.
+
+The first response identifies the authenticated user and role. Persistent
+sessions, access tokens, password reset, and production identity-provider
+integration remain to be implemented before this can protect operational
+features.
+
 ## Decisions to make
 
 Before implementation, decide the approved sign-in method (for example,

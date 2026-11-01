@@ -1,23 +1,35 @@
+using DroneAid.Barcelona.Api.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("DroneAidDatabase")
+    ?? throw new InvalidOperationException(
+        "The DroneAidDatabase connection string must be configured.");
 
+builder.Services.AddDbContext<DroneAidDbContext>(options =>
+    options.UseNpgsql(connectionString));
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AngularDevelopment", policy =>
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+await DatabaseInitializer.InitialiseAsync(app.Services);
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
+app.UseCors("AngularDevelopment");
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapControllers();
 
 app.Run();
