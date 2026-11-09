@@ -1,0 +1,101 @@
+// Small shared additions used by the registry screens (hints, alerts, app bar parts).
+.da-hint {
+  color: var(--da-text-muted);
+  font-size: var(--da-text-sm);
+}
+
+.da-error {
+  color: var(--da-status-repair-fg);
+  font-size: var(--da-text-sm);
+  font-weight: 600;
+}
+
+.da-ok {
+  background: var(--da-status-available-bg);
+  border-radius: var(--da-radius-sm);
+  color: var(--da-status-available-fg);
+  font-weight: 600;
+  margin: 0 0 var(--da-space-4);
+  padding: var(--da-space-2) var(--da-space-4);
+}
+
+.da-label {
+  font-size: var(--da-text-sm);
+  font-weight: 700;
+}
+
+.da-textarea {
+  resize: vertical;
+}
+
+.da-btn {
+  white-space: nowrap;
+}
+
+.da-btn.da-btn-small {
+  font-size: var(--da-text-sm);
+  min-height: 2.25rem;
+  padding: 0 var(--da-space-4);
+}
+
+.da-spacer {
+  flex: 1;
+}
+
+.da-appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  .da-appbar-home {
+    align-items: center;
+    color: inherit;
+    display: flex;
+    gap: var(--da-space-3);
+    text-decoration: none;
+  }
+}
+
+.da-user {
+  align-items: center;
+  color: var(--da-blue-soft);
+  display: flex;
+  font-size: var(--da-text-sm);
+  gap: var(--da-space-2);
+}
+
+.da-avatar {
+  align-items: center;
+  background: var(--da-yellow);
+  border-radius: 50%;
+  color: var(--da-ink);
+  display: grid;
+  font-weight: 800;
+  height: 2.25rem;
+  place-items: center;
+  width: 2.25rem;
+}
+
+.da-btn.da-on-blue {
+  color: var(--da-cream);
+
+  &:hover {
+    background: rgb(255 255 255 / 12%);
+    color: #fff;
+  }
+}
+
+.da-main {
+  padding-block: var(--da-space-5) var(--da-space-7);
+}
+
+.da-pill.pill-warn {
+  background: var(--da-status-repair-bg);
+  color: var(--da-status-repair-fg);
+}
+
+@media (max-width: 47.99rem) {
+  .da-user-name {
+    display: none;
+  }
+}

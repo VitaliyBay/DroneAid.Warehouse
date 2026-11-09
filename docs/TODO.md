@@ -11,17 +11,19 @@ Spec: `features/drone-registry-mvp.md`.
 
 - [ ] Confirm MVP statuses (Available, In testing, Needs repair, Unavailable)
   and whether the drone code is editable after creation.
-- [ ] Add drone, component, issue, and flight-video data model and API
+- [x] Add drone, component, issue, and flight-video data model and API
   (create, list with search/filter, detail, edit), with tests.
-- [ ] Seed default component lists for Analog and Digital types.
-- [ ] Build the responsive list, filters, create form, and detail/edit pages.
-- [ ] Reduce the signed-in workspace to the registry; hide inventory/request
-  screens from the MVP navigation.
+- [x] Seed default component lists for Analog and Digital types (reused from
+  the existing build configurations).
+- [x] Build the responsive list, filters, create form, and detail/edit pages.
+- [x] Reduce the signed-in workspace to the registry; inventory/request screens
+  are removed from the UI (their API remains for post-MVP).
 - [x] Define the app style (`architecture/design-system.md`) and add global
   tokens and shared classes in `src/styles/`.
-- [ ] Apply the design system to the existing login/workspace screens as the
-  registry UI replaces them.
-- [ ] Verify the registry on phone, tablet, laptop, and desktop viewports.
+- [x] Apply the design system to the login and registry screens.
+- [ ] Add Angular unit tests and browser end-to-end tests for the registry.
+- [ ] Verify the registry on tablet, laptop, and desktop viewports (phone and
+  one tablet-width pass done manually). Original item: verify the registry on phone, tablet, laptop, and desktop viewports.
 
 ## Product and feature decisions
 

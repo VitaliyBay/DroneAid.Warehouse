@@ -16,6 +16,14 @@ public sealed class DroneAidDbContext(DbContextOptions<DroneAidDbContext> option
 
     public DbSet<DroneRequest> DroneRequests => Set<DroneRequest>();
 
+    public DbSet<Drone> Drones => Set<Drone>();
+
+    public DbSet<DroneComponent> DroneComponents => Set<DroneComponent>();
+
+    public DbSet<DroneIssue> DroneIssues => Set<DroneIssue>();
+
+    public DbSet<DroneVideo> DroneVideos => Set<DroneVideo>();
+
     public DbSet<InventoryAuditEvent> InventoryAuditEvents => Set<InventoryAuditEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -83,6 +91,40 @@ public sealed class DroneAidDbContext(DbContextOptions<DroneAidDbContext> option
         droneRequest.Property(item => item.DonorReference).HasMaxLength(200);
         droneRequest.Property(item => item.Status).HasConversion<string>().HasMaxLength(30);
         droneRequest.HasIndex(item => new { item.ConfigurationId, item.Status });
+
+        var drone = modelBuilder.Entity<Drone>();
+        drone.ToTable("drones");
+        drone.HasKey(item => item.Id);
+        drone.Property(item => item.Code).HasMaxLength(50).IsRequired();
+        drone.Property(item => item.NormalizedCode).HasMaxLength(50).IsRequired();
+        drone.HasIndex(item => item.NormalizedCode).IsUnique();
+        drone.Property(item => item.Nickname).HasMaxLength(100).IsRequired();
+        drone.Property(item => item.Type).HasConversion<string>().HasMaxLength(20);
+        drone.Property(item => item.Status).HasConversion<string>().HasMaxLength(30);
+        drone.HasIndex(item => new { item.Status, item.Type });
+        drone.HasMany(item => item.Components).WithOne().HasForeignKey(item => item.DroneId).OnDelete(DeleteBehavior.Cascade);
+        drone.HasMany(item => item.Issues).WithOne().HasForeignKey(item => item.DroneId).OnDelete(DeleteBehavior.Cascade);
+        drone.HasMany(item => item.Videos).WithOne().HasForeignKey(item => item.DroneId).OnDelete(DeleteBehavior.Cascade);
+
+        var droneComponent = modelBuilder.Entity<DroneComponent>();
+        droneComponent.ToTable("drone_components");
+        droneComponent.HasKey(item => item.Id);
+        droneComponent.Property(item => item.Name).HasMaxLength(200).IsRequired();
+        droneComponent.Property(item => item.Detail).HasMaxLength(500);
+
+        var droneIssue = modelBuilder.Entity<DroneIssue>();
+        droneIssue.ToTable("drone_issues");
+        droneIssue.HasKey(item => item.Id);
+        droneIssue.Property(item => item.Title).HasMaxLength(200).IsRequired();
+        droneIssue.Property(item => item.Description).HasMaxLength(2000);
+        droneIssue.Property(item => item.ComponentName).HasMaxLength(200);
+        droneIssue.Property(item => item.Status).HasConversion<string>().HasMaxLength(20);
+
+        var droneVideo = modelBuilder.Entity<DroneVideo>();
+        droneVideo.ToTable("drone_videos");
+        droneVideo.HasKey(item => item.Id);
+        droneVideo.Property(item => item.Url).HasMaxLength(2000).IsRequired();
+        droneVideo.Property(item => item.Label).HasMaxLength(200);
 
         var auditEvent = modelBuilder.Entity<InventoryAuditEvent>();
         auditEvent.ToTable("inventory_audit_events");

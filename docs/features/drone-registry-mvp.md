@@ -1,5 +1,8 @@
 # Feature: Drone Registry (MVP)
 
+> **Status: implemented.** API: `api/drones` (see below). UI: list, detail,
+> add/edit form. Seeded sign-in is unchanged.
+
 ## Goal
 
 The first release does one thing: let the team keep track of the drones it
@@ -29,7 +32,7 @@ MVP experience.
 
 | Field | Rules |
 | --- | --- |
-| Code | Required, unique, entered manually (for example `DABCN0001`). Compared case-insensitively. |
+| Code | Required, unique, entered manually (for example `DABCN0001`). Compared case-insensitively. May be edited later; uniqueness is re-checked. |
 | Nickname | Required, free text. Need not be unique, but the form warns about duplicates. |
 | Type | Required: `Analog` or `Digital`. Drives the default component list. |
 | Status | One of the MVP statuses below. |
@@ -88,7 +91,25 @@ A video entry is a link to a video stored in OneDrive or a similar cloud
 service, with an optional label and date. The application stores and opens the
 link only; it does not upload, host, or check the video. Links must be valid
 `https` URLs and open in a new tab. Access to the underlying file is controlled
-by the cloud provider.
+by the cloud provider. A link can be edited or removed (removing deletes only
+the link, never the video).
+
+## API
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/drones?search=&status=&type=` | List drones (available first), with open-issue and video counts. |
+| `GET /api/drones/summary` | Counts per status for the list header. |
+| `GET /api/drones/default-components/{type}` | Standard components for `Analog` or `Digital`. |
+| `GET /api/drones/{id}` | Drone with components, issues, and videos. |
+| `POST /api/drones` | Create; components default from the type when omitted. |
+| `PUT /api/drones/{id}` | Edit code, nickname, type, status. |
+| `PUT /api/drones/{id}/components` | Replace the drone's component list. |
+| `POST/PUT /api/drones/{id}/issues[/{issueId}]` | Report or edit an issue (including resolving). |
+| `POST/PUT/DELETE /api/drones/{id}/videos[/{videoId}]` | Add, edit, or remove a video link. |
+
+Errors return `{ "message": "..." }` with 400 (invalid), 404 (not found), or
+409 (duplicate code). Enums are sent as text (`InTesting`, `NeedsRepair`).
 
 ## Workflow
 
@@ -148,7 +169,7 @@ Layouts are verified at each of those sizes.
 ## Decisions to make
 
 - Confirm the status list and names above.
-- Confirm whether the code may be edited after creation.
+- Code is currently editable after creation; confirm or lock it.
 - Choose the standard cloud provider and sharing permissions for flight videos.
 - Decide when to add roles, an audit trail, QR scanning, and the wider
   build-tracking workflow.
