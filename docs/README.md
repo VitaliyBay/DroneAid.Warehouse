@@ -10,6 +10,10 @@ This directory holds the product documentation for DroneAid Warehouse.
   workflows and optional Git checks.
 - [Architecture](architecture/README.md) defines the Angular, ASP.NET Core,
   PostgreSQL, Docker, and hosting approach.
+- [Drone registry (MVP)](features/drone-registry-mvp.md) defines the first
+  release: tracking the drones we have, with search, filters, components,
+  issues, and flight-test video links. It takes precedence over the feature
+  documents below, which describe post-MVP direction.
 - [Identification and access](features/identification-and-access.md) defines
   authentication, roles, and permissions.
 - [Drone build tracking](features/drone-build-tracking.md) defines the central

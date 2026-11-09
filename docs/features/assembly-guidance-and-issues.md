@@ -1,5 +1,8 @@
 # Feature: Assembly Guidance and Mentor Issues
 
+> **Post-MVP.** The MVP is the [drone registry](drone-registry-mvp.md); this
+> document describes later direction and is not part of the first release.
+
 ## Goal
 
 Help builders assemble each drone consistently and let mentors record clear,

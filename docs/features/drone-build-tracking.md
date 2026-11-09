@@ -1,5 +1,8 @@
 # Feature: Drone Build Tracking
 
+> **Post-MVP.** The MVP is the [drone registry](drone-registry-mvp.md); this
+> document describes later direction and is not part of the first release.
+
 ## Goal
 
 Maintain one authoritative record for every drone assembled by DroneAid. The

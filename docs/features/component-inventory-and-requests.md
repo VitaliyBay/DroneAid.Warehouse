@@ -1,5 +1,8 @@
 # Feature: Component Inventory and Requests
 
+> **Post-MVP.** The MVP is the [drone registry](drone-registry-mvp.md); this
+> document describes later direction and is not part of the first release.
+
 ## Goal
 
 Give DropAid a reliable view of the drone components it needs, has received,

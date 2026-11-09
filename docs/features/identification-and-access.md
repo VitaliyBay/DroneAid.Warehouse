@@ -1,5 +1,8 @@
 # Feature: Identification and Access
 
+> **Post-MVP.** The MVP is the [drone registry](drone-registry-mvp.md); this
+> document describes later direction and is not part of the first release.
+
 ## Goal
 
 Ensure that each action in DroneAid Warehouse is performed by an identifiable

@@ -5,7 +5,23 @@ safe, usable DroneAid Warehouse application. Check off an item only when the
 work is completed and validated; add newly discovered work in the relevant
 section.
 
+## MVP: drone registry
+
+Spec: `features/drone-registry-mvp.md`.
+
+- [ ] Confirm MVP statuses (Available, In testing, Needs repair, Unavailable)
+  and whether the drone code is editable after creation.
+- [ ] Add drone, component, issue, and flight-video data model and API
+  (create, list with search/filter, detail, edit), with tests.
+- [ ] Seed default component lists for Analog and Digital types.
+- [ ] Build the responsive list, filters, create form, and detail/edit pages.
+- [ ] Reduce the signed-in workspace to the registry; hide inventory/request
+  screens from the MVP navigation.
+- [ ] Verify the registry on phone, tablet, laptop, and desktop viewports.
+
 ## Product and feature decisions
+
+These items belong to the post-MVP roadmap.
 
 - [ ] Confirm the detailed part and model choices for the initial Digital and
   Analog drone configurations.

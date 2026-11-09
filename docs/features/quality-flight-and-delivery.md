@@ -1,5 +1,8 @@
 # Feature: Quality, Flight Test, and Delivery Workflow
 
+> **Post-MVP.** The MVP is the [drone registry](drone-registry-mvp.md); this
+> document describes later direction and is not part of the first release.
+
 ## Goal
 
 Give mentors and organizers a practical, auditable way to prove that a drone

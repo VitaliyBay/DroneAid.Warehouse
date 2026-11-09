@@ -44,6 +44,17 @@ resolution; flight-test outcomes; donor/recipient information appropriate for
 their permissions; and shipment milestones. Track who made material
 status changes and when.
 
+## MVP scope
+
+The first release is deliberately small: a registry of the drones the team
+has. Users can see which drones are available, open one to see its status,
+nickname, components, issues, and flight-test video links, create drones
+manually (code, nickname, and Analog or Digital type, with components
+auto-filled and editable), search by code or nickname, filter by status and
+type, and edit any of that data. The lifecycle above is the long-term
+direction; funding, requests, stock, assembly, QC, and shipment workflows are
+deferred. See [Drone registry (MVP)](features/drone-registry-mvp.md).
+
 ## Scope to decide next
 
 Future feature documents will define the exact workflows, fields, status rules,
