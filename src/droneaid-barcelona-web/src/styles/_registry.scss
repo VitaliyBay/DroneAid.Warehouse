@@ -99,3 +99,37 @@
     display: none;
   }
 }
+
+// Longer translations (Ukrainian, Catalan, Spanish) need room in the app bar on phones.
+@media (max-width: 29.99rem) {
+  .da-appbar {
+    flex-wrap: wrap;
+    gap: var(--da-space-1) var(--da-space-2);
+    padding-inline: var(--da-space-3);
+
+    .da-appbar-home {
+      flex: none;
+    }
+
+    .da-user {
+      flex-basis: 100%;
+      justify-content: flex-end;
+    }
+
+    .da-spacer {
+      display: none;
+    }
+  }
+
+  .da-avatar {
+    display: none;
+  }
+
+  .da-user {
+    gap: var(--da-space-1);
+  }
+
+  .da-appbar .da-appbar-title small {
+    display: none;
+  }
+}

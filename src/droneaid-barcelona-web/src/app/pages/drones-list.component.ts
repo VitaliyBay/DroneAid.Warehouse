@@ -12,32 +12,31 @@ import {
   DroneStatusSummary,
   DroneSummary,
   DroneType,
-  statusClass,
-  statusLabel
+  statusClass
 } from '../core/models';
-import { TimeAgoPipe } from '../core/time-ago.pipe';
+import { I18nService } from '../i18n/i18n.service';
 
 @Component({
   selector: 'app-drones-list',
-  imports: [ReactiveFormsModule, RouterLink, TimeAgoPipe],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <div class="page-head">
       <div>
-        <p class="da-eyebrow">Warehouse</p>
-        <h1>Our drones</h1>
+        <p class="da-eyebrow">{{ i18n.t('list.eyebrow') }}</p>
+        <h1>{{ i18n.t('list.title') }}</h1>
         @if (summary(); as s) {
-          <p class="page-sub">{{ s.total }} {{ s.total === 1 ? 'drone' : 'drones' }} · {{ s.available }} available right now</p>
+          <p class="page-sub">{{ i18n.plural('list.count', s.total) }} · {{ i18n.t('list.availableNow', { n: s.available }) }}</p>
         }
       </div>
-      <a class="da-btn da-btn-accent" routerLink="/drones/new">＋ Add drone</a>
+      <a class="da-btn da-btn-accent" routerLink="/drones/new">＋ {{ i18n.t('list.add') }}</a>
     </div>
 
     @if (summary(); as s) {
-      <div class="summary" aria-label="Drones by status">
-        <div class="stat stat-highlight"><strong>{{ s.available }}</strong><span>Available</span></div>
-        <div class="stat"><strong>{{ s.inTesting }}</strong><span>In testing</span></div>
-        <div class="stat"><strong>{{ s.needsRepair }}</strong><span>Needs repair</span></div>
-        <div class="stat"><strong>{{ s.unavailable }}</strong><span>Unavailable</span></div>
+      <div class="summary" [attr.aria-label]="i18n.t('list.summaryLabel')">
+        <div class="stat stat-highlight"><strong>{{ s.available }}</strong><span>{{ i18n.t('status.Available') }}</span></div>
+        <div class="stat"><strong>{{ s.inTesting }}</strong><span>{{ i18n.t('status.InTesting') }}</span></div>
+        <div class="stat"><strong>{{ s.needsRepair }}</strong><span>{{ i18n.t('status.NeedsRepair') }}</span></div>
+        <div class="stat"><strong>{{ s.unavailable }}</strong><span>{{ i18n.t('status.Unavailable') }}</span></div>
       </div>
     }
 
@@ -46,48 +45,48 @@ import { TimeAgoPipe } from '../core/time-ago.pipe';
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
           <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
         </svg>
-        <label class="da-visually-hidden" for="search">Search drones</label>
-        <input id="search" class="da-input" type="search" [formControl]="search" placeholder="Search by code or nickname" autocomplete="off" />
+        <label class="da-visually-hidden" for="search">{{ i18n.t('list.searchLabel') }}</label>
+        <input id="search" class="da-input" type="search" [formControl]="search" [placeholder]="i18n.t('list.searchPlaceholder')" autocomplete="off" />
       </div>
       <div class="filters">
-        <div class="filter-group" role="group" aria-label="Filter by status">
-          <span class="filter-label">Status</span>
-          <button type="button" class="da-chip" [attr.aria-pressed]="status() === ''" (click)="setStatus('')">All</button>
+        <div class="filter-group" role="group" [attr.aria-label]="i18n.t('list.filterStatus')">
+          <span class="filter-label">{{ i18n.t('list.filterStatus') }}</span>
+          <button type="button" class="da-chip" [attr.aria-pressed]="status() === ''" (click)="setStatus('')">{{ i18n.t('list.filterAll') }}</button>
           @for (item of statuses; track item.value) {
             <button type="button" class="da-chip" [attr.aria-pressed]="status() === item.value" (click)="setStatus(item.value)">
-              {{ item.label }}
+              {{ statusText(item.value) }}
             </button>
           }
         </div>
-        <div class="filter-group" role="group" aria-label="Filter by type">
-          <span class="filter-label">Type</span>
-          <button type="button" class="da-chip" [attr.aria-pressed]="type() === ''" (click)="setType('')">All</button>
+        <div class="filter-group" role="group" [attr.aria-label]="i18n.t('list.filterType')">
+          <span class="filter-label">{{ i18n.t('list.filterType') }}</span>
+          <button type="button" class="da-chip" [attr.aria-pressed]="type() === ''" (click)="setType('')">{{ i18n.t('list.filterAll') }}</button>
           @for (item of types; track item) {
-            <button type="button" class="da-chip" [attr.aria-pressed]="type() === item" (click)="setType(item)">{{ item }}</button>
+            <button type="button" class="da-chip" [attr.aria-pressed]="type() === item" (click)="setType(item)">{{ typeText(item) }}</button>
           }
         </div>
         @if (hasFilters()) {
-          <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="clear()">Clear filters</button>
+          <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="clear()">{{ i18n.t('list.clearFilters') }}</button>
         }
       </div>
     </div>
 
     @if (error()) {
-      <p class="da-error" role="alert">{{ error() }}</p>
+      <p class="da-error" role="alert">{{ i18n.t('list.loadError') }}</p>
     }
 
     @if (loading() && !drones().length) {
-      <p class="da-hint">Loading drones…</p>
+      <p class="da-hint">{{ i18n.t('list.loading') }}</p>
     } @else if (!drones().length && !error()) {
       <div class="da-empty">
         @if (hasFilters()) {
-          <h3>No drones match</h3>
-          <p>Try a different search or clear the filters.</p>
-          <button type="button" class="da-btn da-btn-secondary" (click)="clear()">Clear filters</button>
+          <h3>{{ i18n.t('list.noMatchTitle') }}</h3>
+          <p>{{ i18n.t('list.noMatchText') }}</p>
+          <button type="button" class="da-btn da-btn-secondary" (click)="clear()">{{ i18n.t('list.clearFilters') }}</button>
         } @else {
-          <h3>No drones yet</h3>
-          <p>Add your first drone to start tracking its parts, issues and test flights.</p>
-          <a class="da-btn da-btn-accent" routerLink="/drones/new">＋ Add drone</a>
+          <h3>{{ i18n.t('list.emptyTitle') }}</h3>
+          <p>{{ i18n.t('list.emptyText') }}</p>
+          <a class="da-btn da-btn-accent" routerLink="/drones/new">＋ {{ i18n.t('list.add') }}</a>
         }
       </div>
     } @else {
@@ -99,19 +98,19 @@ import { TimeAgoPipe } from '../core/time-ago.pipe';
                 <div class="drone-code">{{ drone.code }}</div>
                 <h3>{{ drone.nickname }}</h3>
               </div>
-              <div class="dtype" [title]="drone.type" aria-hidden="true">{{ drone.type[0] }}</div>
+              <div class="dtype" [title]="typeText(drone.type)" aria-hidden="true">{{ typeText(drone.type)[0] }}</div>
             </div>
-            <span class="da-status" [class]="'da-status ' + statusClass(drone.status)">{{ statusLabel(drone.status) }}</span>
+            <span class="da-status" [class]="'da-status ' + statusClass(drone.status)">{{ statusText(drone.status) }}</span>
             <div class="drone-meta">
-              <span class="da-pill">{{ drone.type }}</span>
-              <span class="da-pill">{{ drone.componentCount }} components</span>
+              <span class="da-pill">{{ typeText(drone.type) }}</span>
+              <span class="da-pill">{{ i18n.plural('card.components', drone.componentCount) }}</span>
               @if (drone.openIssueCount) {
-                <span class="da-pill pill-warn">⚠ {{ drone.openIssueCount }} open {{ drone.openIssueCount === 1 ? 'issue' : 'issues' }}</span>
+                <span class="da-pill pill-warn">⚠ {{ i18n.plural('card.issues', drone.openIssueCount) }}</span>
               }
             </div>
             <div class="drone-foot">
-              <span>Updated {{ drone.updatedAtUtc | timeAgo }}</span>
-              <span>{{ drone.videoCount ? '🎬 ' + drone.videoCount + (drone.videoCount === 1 ? ' video' : ' videos') : 'No videos' }}</span>
+              <span>{{ i18n.t('card.updated', { when: i18n.timeAgo(drone.updatedAtUtc) }) }}</span>
+              <span>{{ drone.videoCount ? '🎬 ' + i18n.plural('card.videos', drone.videoCount) : i18n.t('card.noVideos') }}</span>
             </div>
           </a>
         }
@@ -121,10 +120,10 @@ import { TimeAgoPipe } from '../core/time-ago.pipe';
 })
 export class DronesListComponent {
   private readonly service = inject(DroneService);
+  readonly i18n = inject(I18nService);
 
   readonly statuses = DRONE_STATUSES;
   readonly types = DRONE_TYPES;
-  readonly statusLabel = statusLabel;
   readonly statusClass = statusClass;
 
   readonly search = new FormControl('', { nonNullable: true });
@@ -133,7 +132,7 @@ export class DronesListComponent {
   readonly drones = signal<DroneSummary[]>([]);
   readonly summary = signal<DroneStatusSummary | null>(null);
   readonly loading = signal(true);
-  readonly error = signal('');
+  readonly error = signal(false);
 
   private readonly reload$ = new Subject<void>();
 
@@ -148,7 +147,7 @@ export class DronesListComponent {
             .list({ search: this.search.value, status: this.status(), type: this.type() })
             .pipe(
               catchError(() => {
-                this.error.set('We could not load the drones. Check that the API is running and try again.');
+                this.error.set(true);
                 return of(null);
               })
             )
@@ -157,7 +156,7 @@ export class DronesListComponent {
       )
       .subscribe((drones) => {
         if (drones) {
-          this.error.set('');
+          this.error.set(false);
           this.drones.set(drones);
         }
         this.loading.set(false);
@@ -165,6 +164,14 @@ export class DronesListComponent {
 
     this.search.valueChanges.pipe(debounceTime(250), takeUntilDestroyed(destroyRef)).subscribe(() => this.reload$.next());
     this.service.summary().subscribe({ next: (summary) => this.summary.set(summary), error: () => undefined });
+  }
+
+  statusText(status: DroneStatus): string {
+    return this.i18n.t(`status.${status}`);
+  }
+
+  typeText(type: DroneType): string {
+    return this.i18n.t(`type.${type}`);
   }
 
   hasFilters(): boolean {

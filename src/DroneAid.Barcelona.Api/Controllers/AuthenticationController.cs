@@ -24,7 +24,7 @@ public sealed class AuthenticationController(DroneAidDbContext database) : Contr
 
         if (user is null || !PasswordHasher.Verify(request.Password, user.PasswordHash, user.PasswordSalt))
         {
-            return Unauthorized(new { message = "The username or password is incorrect." });
+            return Unauthorized(new { code = "auth.invalid", message = "The username or password is incorrect." });
         }
 
         return Ok(new LoginResponse(user.UserName, user.Role));

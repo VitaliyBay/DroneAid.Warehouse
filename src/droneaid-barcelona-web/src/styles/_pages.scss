@@ -61,9 +61,17 @@
 }
 
 .login-panel {
-  display: grid;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--da-space-4);
+  justify-content: center;
   padding: clamp(1rem, 5vw, 3rem);
-  place-items: center;
+}
+
+.login-lang {
+  align-self: flex-end;
+  max-width: 26rem;
 }
 
 .login-card {
@@ -315,13 +323,14 @@
 .cols {
   display: grid;
   gap: var(--da-space-4);
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 }
 
 .stack {
   align-content: start;
   display: grid;
   gap: var(--da-space-4);
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
 }
 
@@ -546,7 +555,7 @@
 // ---------- Responsive ----------
 @media (max-width: 63.99rem) {
   .cols {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

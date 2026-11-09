@@ -81,7 +81,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
     public async Task<ActionResult<DroneDetailResponse>> Get(Guid id, CancellationToken cancellationToken)
     {
         var drone = await LoadDrone(id, cancellationToken);
-        return drone is null ? NotFound(Message("The drone could not be found.")) : Ok(ToDetail(drone));
+        return drone is null ? NotFound(Message(new ApiError("drone.notFound", "The drone could not be found."))) : Ok(ToDetail(drone));
     }
 
     [HttpPost]
@@ -98,7 +98,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var code = request.Code!.Trim();
         if (await CodeExists(code, null, cancellationToken))
         {
-            return Conflict(Message($"A drone with the code {code} already exists."));
+            return Conflict(Message(new ApiError("drone.code.duplicate", $"A drone with the code {code} already exists.", new { code })));
         }
 
         var inputs = request.Components ?? DefaultComponentsFor(request.Type!.Value);
@@ -131,7 +131,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var drone = await LoadDrone(id, cancellationToken);
         if (drone is null)
         {
-            return NotFound(Message("The drone could not be found."));
+            return NotFound(Message(new ApiError("drone.notFound", "The drone could not be found.")));
         }
 
         var error = ValidateIdentity(request.Code, request.Nickname, request.Type);
@@ -142,13 +142,13 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
 
         if (request.Status is null)
         {
-            return BadRequest(Message("Choose a status for the drone."));
+            return BadRequest(Message(new ApiError("drone.status.required", "Choose a status for the drone.")));
         }
 
         var code = request.Code!.Trim();
         if (await CodeExists(code, id, cancellationToken))
         {
-            return Conflict(Message($"A drone with the code {code} already exists."));
+            return Conflict(Message(new ApiError("drone.code.duplicate", $"A drone with the code {code} already exists.", new { code })));
         }
 
         drone.Code = code;
@@ -175,7 +175,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var drone = await LoadDrone(id, cancellationToken);
         if (drone is null)
         {
-            return NotFound(Message("The drone could not be found."));
+            return NotFound(Message(new ApiError("drone.notFound", "The drone could not be found.")));
         }
 
         var inputs = request.Components ?? [];
@@ -208,7 +208,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var drone = await LoadDrone(id, cancellationToken);
         if (drone is null)
         {
-            return NotFound(Message("The drone could not be found."));
+            return NotFound(Message(new ApiError("drone.notFound", "The drone could not be found.")));
         }
 
         var error = ValidateIssue(request);
@@ -236,7 +236,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var issue = drone?.Issues.SingleOrDefault(item => item.Id == issueId);
         if (drone is null || issue is null)
         {
-            return NotFound(Message("The issue could not be found."));
+            return NotFound(Message(new ApiError("issue.notFound", "The issue could not be found.")));
         }
 
         var error = ValidateIssue(request);
@@ -260,7 +260,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var drone = await LoadDrone(id, cancellationToken);
         if (drone is null)
         {
-            return NotFound(Message("The drone could not be found."));
+            return NotFound(Message(new ApiError("drone.notFound", "The drone could not be found.")));
         }
 
         var error = ValidateVideo(request);
@@ -288,7 +288,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var video = drone?.Videos.SingleOrDefault(item => item.Id == videoId);
         if (drone is null || video is null)
         {
-            return NotFound(Message("The video link could not be found."));
+            return NotFound(Message(new ApiError("video.notFound", "The video link could not be found.")));
         }
 
         var error = ValidateVideo(request);
@@ -313,7 +313,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         var video = drone?.Videos.SingleOrDefault(item => item.Id == videoId);
         if (drone is null || video is null)
         {
-            return NotFound(Message("The video link could not be found."));
+            return NotFound(Message(new ApiError("video.notFound", "The video link could not be found.")));
         }
 
         database.DroneVideos.Remove(video);
@@ -323,7 +323,9 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         return Ok(ToDetail(drone));
     }
 
-    private static object Message(string message) => new { message };
+    private static object Message(ApiError error) => new { code = error.Code, message = error.Message, args = error.Args };
+
+    private sealed record ApiError(string Code, string Message, object? Args = null);
 
     private static string Normalize(string code) => code.Trim().ToUpperInvariant();
 
@@ -366,88 +368,88 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         return string.IsNullOrEmpty(trimmed) ? null : trimmed;
     }
 
-    private static string? ValidateIdentity(string? code, string? nickname, DroneType? type)
+    private static ApiError? ValidateIdentity(string? code, string? nickname, DroneType? type)
     {
         if (string.IsNullOrWhiteSpace(code))
         {
-            return "Enter the drone code.";
+            return new ApiError("drone.code.required", "Enter the drone code.");
         }
 
         if (code.Trim().Length > 50)
         {
-            return "The drone code can have at most 50 characters.";
+            return new ApiError("drone.code.tooLong", "The drone code can have at most 50 characters.");
         }
 
         if (string.IsNullOrWhiteSpace(nickname))
         {
-            return "Enter a nickname for the drone.";
+            return new ApiError("drone.nickname.required", "Enter a nickname for the drone.");
         }
 
         if (nickname.Trim().Length > 100)
         {
-            return "The nickname can have at most 100 characters.";
+            return new ApiError("drone.nickname.tooLong", "The nickname can have at most 100 characters.");
         }
 
-        return type is null ? "Choose the drone type: Analog or Digital." : null;
+        return type is null ? new ApiError("drone.type.required", "Choose the drone type: Analog or Digital.") : null;
     }
 
-    private static string? ValidateComponents(IReadOnlyList<ComponentInput> inputs)
+    private static ApiError? ValidateComponents(IReadOnlyList<ComponentInput> inputs)
     {
         if (inputs.Count > MaxComponents)
         {
-            return $"A drone can have at most {MaxComponents} component entries.";
+            return new ApiError("components.tooMany", $"A drone can have at most {MaxComponents} component entries.", new { max = MaxComponents });
         }
 
         foreach (var input in inputs)
         {
             if (string.IsNullOrWhiteSpace(input.Name))
             {
-                return "Every component needs a name.";
+                return new ApiError("component.name.required", "Every component needs a name.");
             }
 
             if (input.Name.Trim().Length > 200 || (input.Detail?.Trim().Length ?? 0) > 500)
             {
-                return "A component name can have at most 200 characters and a detail note at most 500.";
+                return new ApiError("component.tooLong", "A component name can have at most 200 characters and a detail note at most 500.");
             }
 
             if (input.Quantity < 1)
             {
-                return $"The quantity for {input.Name.Trim()} must be a whole number of at least 1.";
+                return new ApiError("component.quantity.invalid", $"The quantity for {input.Name.Trim()} must be a whole number of at least 1.", new { name = input.Name.Trim() });
             }
         }
 
         return null;
     }
 
-    private static string? ValidateIssue(IssueRequest request)
+    private static ApiError? ValidateIssue(IssueRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
         {
-            return "Enter a short title for the issue.";
+            return new ApiError("issue.title.required", "Enter a short title for the issue.");
         }
 
         if (request.Title.Trim().Length > 200 ||
             (request.Description?.Trim().Length ?? 0) > 2000 ||
             (request.ComponentName?.Trim().Length ?? 0) > 200)
         {
-            return "The issue title can have at most 200 characters, the description 2000, and the component 200.";
+            return new ApiError("issue.tooLong", "The issue title can have at most 200 characters, the description 2000, and the component 200.");
         }
 
         return null;
     }
 
-    private static string? ValidateVideo(VideoRequest request)
+    private static ApiError? ValidateVideo(VideoRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Url) ||
             !Uri.TryCreate(request.Url.Trim(), UriKind.Absolute, out var uri) ||
             uri.Scheme != Uri.UriSchemeHttps)
         {
-            return "Enter a valid link that starts with https://.";
+            return new ApiError("video.url.invalid", "Enter a valid link that starts with https://.");
         }
 
         if (request.Url.Trim().Length > 2000 || (request.Label?.Trim().Length ?? 0) > 200)
         {
-            return "The link can have at most 2000 characters and the label 200.";
+            return new ApiError("video.tooLong", "The link can have at most 2000 characters and the label 200.");
         }
 
         return null;

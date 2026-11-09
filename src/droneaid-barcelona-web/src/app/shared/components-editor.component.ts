@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ComponentInput } from '../core/models';
+import { I18nService } from '../i18n/i18n.service';
 
 export type ComponentGroup = FormGroup<{
   name: FormControl<string>;
@@ -47,21 +48,26 @@ export function readComponents(array: FormArray<ComponentGroup>): ComponentInput
       @for (row of rows().controls; track row; let i = $index) {
         <div class="editor-row" [formGroup]="row">
           <div class="da-field">
-            <label class="da-visually-hidden" [for]="'cn-' + i">Component name</label>
+            <label class="da-visually-hidden" [for]="'cn-' + i">{{ i18n.t('editor.name') }}</label>
             <input
               class="da-input"
               [id]="'cn-' + i"
               formControlName="name"
-              placeholder="Component name"
+              [placeholder]="i18n.t('editor.namePlaceholder')"
               [attr.aria-invalid]="row.controls.name.invalid && row.controls.name.touched"
             />
           </div>
           <div class="da-field">
-            <label class="da-visually-hidden" [for]="'cd-' + i">Model or note</label>
-            <input class="da-input" [id]="'cd-' + i" formControlName="detail" placeholder="Model or note (optional)" />
+            <label class="da-visually-hidden" [for]="'cd-' + i">{{ i18n.t('editor.detail') }}</label>
+            <input
+              class="da-input"
+              [id]="'cd-' + i"
+              formControlName="detail"
+              [placeholder]="i18n.t('editor.detailPlaceholder')"
+            />
           </div>
           <div class="da-field qty">
-            <label class="da-visually-hidden" [for]="'cq-' + i">Quantity</label>
+            <label class="da-visually-hidden" [for]="'cq-' + i">{{ i18n.t('editor.quantity') }}</label>
             <input
               class="da-input"
               [id]="'cq-' + i"
@@ -73,15 +79,22 @@ export function readComponents(array: FormArray<ComponentGroup>): ComponentInput
               [attr.aria-invalid]="row.controls.quantity.invalid"
             />
           </div>
-          <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="remove(i)" [attr.aria-label]="'Remove component ' + (i + 1)">
-            Remove
+          <button
+            type="button"
+            class="da-btn da-btn-ghost da-btn-small"
+            (click)="remove(i)"
+            [attr.aria-label]="i18n.t('editor.remove', { n: i + 1 })"
+          >
+            {{ i18n.t('common.remove') }}
           </button>
         </div>
       } @empty {
-        <p class="da-hint">No components yet.</p>
+        <p class="da-hint">{{ i18n.t('editor.empty') }}</p>
       }
     </div>
-    <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="add()">＋ Add component</button>
+    <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="add()">
+      ＋ {{ i18n.t('editor.add') }}
+    </button>
   `,
   styles: `
     .editor-row {
@@ -125,6 +138,7 @@ export function readComponents(array: FormArray<ComponentGroup>): ComponentInput
   `
 })
 export class ComponentsEditorComponent {
+  readonly i18n = inject(I18nService);
   readonly rows = input.required<FormArray<ComponentGroup>>();
 
   add(): void {

@@ -4,14 +4,8 @@ import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { DroneIdentity, DroneService } from '../core/drone.service';
-import {
-  ComponentInput,
-  DRONE_STATUSES,
-  DRONE_TYPES,
-  DroneDetail,
-  DroneType,
-  errorMessage
-} from '../core/models';
+import { ComponentInput, DRONE_STATUSES, DRONE_TYPES, DroneDetail, DroneType } from '../core/models';
+import { I18nService } from '../i18n/i18n.service';
 import {
   ComponentGroup,
   ComponentsEditorComponent,
@@ -19,70 +13,65 @@ import {
   setComponents
 } from '../shared/components-editor.component';
 
-const TYPE_HINTS: Record<DroneType, string> = {
-  Analog: 'Analog camera + video transmitter',
-  Digital: 'Digital video unit'
-};
-
 @Component({
   selector: 'app-drone-form',
   imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent],
   template: `
     <div class="crumbs">
-      <a [routerLink]="editing() ? ['/drones', id] : ['/drones']">← {{ editing() ? 'Back to drone' : 'All drones' }}</a>
+      <a [routerLink]="editing() ? ['/drones', id] : ['/drones']">← {{ editing() ? i18n.t('form.backToDrone') : i18n.t('form.allDrones') }}</a>
     </div>
 
     @if (loadError()) {
       <p class="da-error" role="alert">{{ loadError() }}</p>
     } @else {
       <form class="da-card form-card" [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <p class="da-eyebrow">{{ editing() ? 'Edit drone' : 'New drone' }}</p>
-        <h1 class="form-title">{{ editing() ? 'Edit ' + (original()?.nickname ?? 'drone') : 'Add a drone' }}</h1>
-        <p class="da-hint">
-          {{ editing() ? 'Change the basics here. Parts, issues and videos are edited on the drone page.' : 'Enter the basics. We fill in the parts for you, and you can change them.' }}
-        </p>
+        <p class="da-eyebrow">{{ editing() ? i18n.t('form.eyebrowEdit') : i18n.t('form.eyebrowNew') }}</p>
+        <h1 class="form-title">
+          {{ editing() ? i18n.t('form.titleEdit', { name: original()?.nickname ?? i18n.t('form.fallbackName') }) : i18n.t('form.titleNew') }}
+        </h1>
+        <p class="da-hint">{{ editing() ? i18n.t('form.hintEdit') : i18n.t('form.hintNew') }}</p>
 
         <div class="da-field">
-          <label for="code">Drone code</label>
+          <label for="code">{{ i18n.t('form.code') }}</label>
           <input id="code" class="da-input" formControlName="code" placeholder="DABCN0001" autocomplete="off" [attr.aria-invalid]="invalid('code')" />
           @if (invalid('code')) {
-            <span class="da-error">Enter the drone code (up to 50 characters).</span>
+            <span class="da-error">{{ i18n.t('form.codeError') }}</span>
           } @else {
-            <span class="da-hint">Must be unique.</span>
+            <span class="da-hint">{{ i18n.t('form.codeHint') }}</span>
           }
         </div>
 
         <div class="da-field">
-          <label for="nickname">Nickname</label>
-          <input id="nickname" class="da-input" formControlName="nickname" placeholder="For example, Falcon" autocomplete="off" [attr.aria-invalid]="invalid('nickname')" />
+          <label for="nickname">{{ i18n.t('form.nickname') }}</label>
+          <input id="nickname" class="da-input" formControlName="nickname" [placeholder]="i18n.t('form.nicknamePlaceholder')" autocomplete="off" [attr.aria-invalid]="invalid('nickname')" />
           @if (invalid('nickname')) {
-            <span class="da-error">Enter a nickname (up to 100 characters).</span>
+            <span class="da-error">{{ i18n.t('form.nicknameError') }}</span>
           } @else if (duplicateNickname()) {
-            <span class="da-hint warn-note">Another drone already uses this nickname. You can still save.</span>
+            <span class="da-hint warn-note">{{ i18n.t('form.nicknameDuplicate') }}</span>
           }
         </div>
 
         <div class="da-field" role="group" aria-labelledby="type-label">
-          <span id="type-label" class="da-label">Drone type</span>
+          <span id="type-label" class="da-label">{{ i18n.t('form.type') }}</span>
           <div class="type-pick">
             @for (item of types; track item) {
               <button type="button" class="type-opt" [attr.aria-pressed]="form.controls.type.value === item" (click)="chooseType(item)">
-                <b>{{ item }}</b>
-                <small>{{ hints[item] }}</small>
+                <b>{{ i18n.t('type.' + item) }}</b>
+                <small>{{ i18n.t(item === 'Analog' ? 'type.Analog.hint' : 'type.Digital.hint') }}</small>
               </button>
             }
           </div>
           @if (invalid('type')) {
-            <span class="da-error">Choose Analog or Digital.</span>
+            <span class="da-error">{{ i18n.t('form.typeError') }}</span>
           }
         </div>
 
         @if (editing()) {
           <div class="da-field">
-            <label for="status">Status</label>
+            <label for="status">{{ i18n.t('form.status') }}</label>
             <select id="status" class="da-select" formControlName="status">
               @for (item of statuses; track item.value) {
-                <option [value]="item.value">{{ item.label }}</option>
+                <option [value]="item.value">{{ i18n.t('status.' + item.value) }}</option>
               }
             </select>
           </div>
@@ -90,11 +79,16 @@ const TYPE_HINTS: Record<DroneType, string> = {
 
         @if (!editing()) {
           <div class="da-field">
-            <span class="da-label">Components @if (form.controls.type.value) {<span class="da-hint">· loaded for {{ form.controls.type.value }}</span>}</span>
+            <span class="da-label">
+              {{ i18n.t('form.components') }}
+              @if (form.controls.type.value) {
+                <span class="da-hint">{{ i18n.t('form.componentsLoadedFor', { type: i18n.t('type.' + form.controls.type.value) }) }}</span>
+              }
+            </span>
             @if (form.controls.type.value) {
               <app-components-editor [rows]="components" />
             } @else {
-              <p class="da-hint">Choose a drone type to load its standard components.</p>
+              <p class="da-hint">{{ i18n.t('form.chooseTypeFirst') }}</p>
             }
           </div>
         }
@@ -104,8 +98,10 @@ const TYPE_HINTS: Record<DroneType, string> = {
         }
 
         <div class="actions">
-          <a class="da-btn da-btn-secondary" [routerLink]="editing() ? ['/drones', id] : ['/drones']">Cancel</a>
-          <button type="submit" class="da-btn da-btn-accent" [disabled]="saving()">{{ saving() ? 'Saving…' : editing() ? 'Save changes' : 'Save drone' }}</button>
+          <a class="da-btn da-btn-secondary" [routerLink]="editing() ? ['/drones', id] : ['/drones']">{{ i18n.t('common.cancel') }}</a>
+          <button type="submit" class="da-btn da-btn-accent" [disabled]="saving()">
+            {{ saving() ? i18n.t('common.saving') : editing() ? i18n.t('form.saveChanges') : i18n.t('form.save') }}
+          </button>
         </div>
       </form>
     }
@@ -116,12 +112,12 @@ export class DroneFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  readonly i18n = inject(I18nService);
 
   readonly id = this.route.snapshot.paramMap.get('id');
   readonly editing = signal(!!this.id);
   readonly types = DRONE_TYPES;
   readonly statuses = DRONE_STATUSES;
-  readonly hints = TYPE_HINTS;
 
   readonly components = new FormArray<ComponentGroup>([]);
   readonly form = inject(FormBuilder).group({
@@ -155,7 +151,7 @@ export class DroneFormComponent implements OnInit {
           this.original.set(drone);
           this.form.patchValue({ code: drone.code, nickname: drone.nickname, type: drone.type, status: drone.status });
         },
-        error: (error: unknown) => this.loadError.set(errorMessage(error, 'We could not load this drone.'))
+        error: (error: unknown) => this.loadError.set(this.i18n.error(error, 'form.loadFailed'))
       });
     }
   }
@@ -171,17 +167,17 @@ export class DroneFormComponent implements OnInit {
     if (!this.editing()) {
       this.service.defaultComponents(type).subscribe({
         next: (items) => setComponents(this.components, items),
-        error: () => this.error.set('We could not load the standard components. You can add them by hand.')
+        error: () => this.error.set(this.i18n.t('form.defaultsFailed'))
       });
     }
   }
 
   save(): void {
-    if (this.form.invalid || (!this.editing() && this.componentsInvalid())) {
+    if (this.form.invalid || (!this.editing() && this.components.invalid)) {
       this.form.markAllAsTouched();
       this.components.markAllAsTouched();
       if (!this.form.invalid) {
-        this.error.set('Check the components: each needs a name and a whole quantity of at least 1.');
+        this.error.set(this.i18n.t('form.componentsInvalid'));
       }
       return;
     }
@@ -210,10 +206,7 @@ export class DroneFormComponent implements OnInit {
   }
 
   private offerDefaults(id: string, type: DroneType): void {
-    const replace = window.confirm(
-      `The drone type changed to ${type}. Replace its components with the standard ${type} list?\n\n` +
-        'OK replaces the list. Cancel keeps the current components.'
-    );
+    const replace = window.confirm(this.i18n.t('form.typeChangedConfirm', { type: this.i18n.t(`type.${type}`) }));
     if (!replace) {
       this.finish(id);
       return;
@@ -228,10 +221,6 @@ export class DroneFormComponent implements OnInit {
     });
   }
 
-  private componentsInvalid(): boolean {
-    return this.components.invalid;
-  }
-
   private checkNickname(): void {
     const nickname = (this.form.controls.nickname.value ?? '').trim().toLowerCase();
     this.duplicateNickname.set(
@@ -244,7 +233,7 @@ export class DroneFormComponent implements OnInit {
   }
 
   private fail(error: unknown): void {
-    this.error.set(errorMessage(error, 'We could not save the drone. Check the information and try again.'));
+    this.error.set(this.i18n.error(error, 'form.saveFailed'));
     this.saving.set(false);
   }
 }

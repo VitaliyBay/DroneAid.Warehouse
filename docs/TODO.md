@@ -25,6 +25,11 @@ Spec: `features/drone-registry-mvp.md`.
 - [ ] Verify the registry on tablet, laptop, and desktop viewports (phone and
   one tablet-width pass done manually). Original item: verify the registry on phone, tablet, laptop, and desktop viewports.
 
+- [x] Add Ukrainian, Spanish, and Catalan support (`features/localization.md`).
+- [ ] Have native speakers review the Ukrainian, Spanish, and Catalan texts.
+- [ ] Add automated checks for translations (key parity is compile-time
+  checked; add unit tests for plural and date formatting).
+
 ## Product and feature decisions
 
 These items belong to the post-MVP roadmap.

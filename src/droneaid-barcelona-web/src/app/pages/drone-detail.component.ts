@@ -1,19 +1,11 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { DroneService } from '../core/drone.service';
-import {
-  DroneDetail,
-  DroneIssue,
-  DroneVideo,
-  errorMessage,
-  statusClass,
-  statusLabel
-} from '../core/models';
-import { TimeAgoPipe } from '../core/time-ago.pipe';
+import { DroneDetail, DroneIssue, DroneVideo, statusClass } from '../core/models';
+import { I18nService } from '../i18n/i18n.service';
 import {
   ComponentGroup,
   ComponentsEditorComponent,
@@ -25,9 +17,9 @@ const COLLAPSED_COMPONENTS = 7;
 
 @Component({
   selector: 'app-drone-detail',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, ComponentsEditorComponent, TimeAgoPipe],
+  imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent],
   template: `
-    <div class="crumbs"><a routerLink="/drones">← All drones</a></div>
+    <div class="crumbs"><a routerLink="/drones">← {{ i18n.t('detail.allDrones') }}</a></div>
 
     @if (drone(); as d) {
       <div class="detail-head">
@@ -35,12 +27,12 @@ const COLLAPSED_COMPONENTS = 7;
           <div class="head-code">{{ d.code }}</div>
           <h1>{{ d.nickname }}</h1>
           <div class="head-row">
-            <span class="da-status" [class]="'da-status ' + statusClass(d.status)">{{ statusLabel(d.status) }}</span>
-            <span class="da-pill head-pill">{{ d.type }}</span>
-            <span class="da-pill head-pill">Updated {{ d.updatedAtUtc | timeAgo }}</span>
+            <span class="da-status" [class]="'da-status ' + statusClass(d.status)">{{ i18n.t('status.' + d.status) }}</span>
+            <span class="da-pill head-pill">{{ i18n.t('type.' + d.type) }}</span>
+            <span class="da-pill head-pill">{{ i18n.t('card.updated', { when: i18n.timeAgo(d.updatedAtUtc) }) }}</span>
           </div>
         </div>
-        <a class="da-btn da-btn-accent" [routerLink]="['/drones', d.id, 'edit']">✎ Edit drone</a>
+        <a class="da-btn da-btn-accent" [routerLink]="['/drones', d.id, 'edit']">✎ {{ i18n.t('detail.editDrone') }}</a>
       </div>
 
       @if (message()) {
@@ -54,16 +46,16 @@ const COLLAPSED_COMPONENTS = 7;
         <div class="stack">
           <section class="da-card" aria-labelledby="components-title">
             <h2 id="components-title">
-              Components
+              {{ i18n.t('detail.components') }}
               @if (!editingComponents()) {
-                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startEditComponents(d)">✎ Edit</button>
+                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startEditComponents(d)">✎ {{ i18n.t('common.edit') }}</button>
               }
             </h2>
             @if (editingComponents()) {
               <app-components-editor [rows]="componentRows" />
               <div class="actions">
-                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="editingComponents.set(false)">Cancel</button>
-                <button type="button" class="da-btn da-btn-small" [disabled]="saving()" (click)="saveComponents(d)">Save components</button>
+                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="editingComponents.set(false)">{{ i18n.t('common.cancel') }}</button>
+                <button type="button" class="da-btn da-btn-small" [disabled]="saving()" (click)="saveComponents(d)">{{ i18n.t('detail.saveComponents') }}</button>
               </div>
             } @else {
               <ul class="comp">
@@ -73,15 +65,15 @@ const COLLAPSED_COMPONENTS = 7;
                     @if (item.detail) {
                       <span class="comp-detail">{{ item.detail }}</span>
                     }
-                    <span class="comp-qty" [attr.aria-label]="'Quantity ' + item.quantity">{{ item.quantity }}</span>
+                    <span class="comp-qty" [attr.aria-label]="i18n.t('detail.quantity', { n: item.quantity })">{{ item.quantity }}</span>
                   </li>
                 } @empty {
-                  <li class="da-hint">No components recorded.</li>
+                  <li class="da-hint">{{ i18n.t('detail.noComponents') }}</li>
                 }
               </ul>
               @if (d.components.length > collapsedCount) {
                 <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="showAll.set(!showAll())">
-                  {{ showAll() ? 'Show fewer' : 'Show all ' + d.components.length + ' components' }}
+                  {{ showAll() ? i18n.t('detail.showFewer') : i18n.t('detail.showAll', { n: d.components.length }) }}
                 </button>
               }
             }
@@ -89,23 +81,23 @@ const COLLAPSED_COMPONENTS = 7;
 
           <section class="da-card" aria-labelledby="issues-title">
             <h2 id="issues-title">
-              Issues
+              {{ i18n.t('detail.issues') }}
               @if (issueEditor() === null) {
-                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startIssue(null)">＋ Report issue</button>
+                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startIssue(null)">＋ {{ i18n.t('detail.reportIssue') }}</button>
               }
             </h2>
 
             @if (issueEditor() !== null) {
               <form class="inline-form" [formGroup]="issueForm" (ngSubmit)="saveIssue(d)" novalidate>
                 <div class="da-field">
-                  <label for="issue-title">Title</label>
-                  <input id="issue-title" class="da-input" formControlName="title" placeholder="What is wrong?" [attr.aria-invalid]="issueForm.controls.title.invalid && issueForm.controls.title.touched" />
+                  <label for="issue-title">{{ i18n.t('detail.issueTitle') }}</label>
+                  <input id="issue-title" class="da-input" formControlName="title" [placeholder]="i18n.t('detail.issueTitlePlaceholder')" [attr.aria-invalid]="issueForm.controls.title.invalid && issueForm.controls.title.touched" />
                   @if (issueForm.controls.title.invalid && issueForm.controls.title.touched) {
-                    <span class="da-error">Enter a short title.</span>
+                    <span class="da-error">{{ i18n.t('detail.issueTitleError') }}</span>
                   }
                 </div>
                 <div class="da-field">
-                  <label for="issue-component">Affected component (optional)</label>
+                  <label for="issue-component">{{ i18n.t('detail.issueComponent') }}</label>
                   <input id="issue-component" class="da-input" formControlName="componentName" list="component-names" />
                   <datalist id="component-names">
                     @for (item of d.components; track item.id) {
@@ -114,21 +106,21 @@ const COLLAPSED_COMPONENTS = 7;
                   </datalist>
                 </div>
                 <div class="da-field">
-                  <label for="issue-description">Details (optional)</label>
+                  <label for="issue-description">{{ i18n.t('detail.issueDetails') }}</label>
                   <textarea id="issue-description" class="da-textarea" rows="3" formControlName="description"></textarea>
                 </div>
                 @if (issueEditor() !== 'new') {
                   <div class="da-field">
-                    <label for="issue-status">Status</label>
+                    <label for="issue-status">{{ i18n.t('detail.issueStatus') }}</label>
                     <select id="issue-status" class="da-select" formControlName="status">
-                      <option value="Open">Open</option>
-                      <option value="Resolved">Resolved</option>
+                      <option value="Open">{{ i18n.t('detail.issueOpen') }}</option>
+                      <option value="Resolved">{{ i18n.t('detail.issueResolved') }}</option>
                     </select>
                   </div>
                 }
                 <div class="actions">
-                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="issueEditor.set(null)">Cancel</button>
-                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">Save issue</button>
+                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="issueEditor.set(null)">{{ i18n.t('common.cancel') }}</button>
+                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">{{ i18n.t('detail.saveIssue') }}</button>
                 </div>
               </form>
             }
@@ -137,22 +129,21 @@ const COLLAPSED_COMPONENTS = 7;
               <article class="issue" [class.issue-done]="issue.status === 'Resolved'">
                 <div class="issue-top">
                   <span>{{ issue.title }}</span>
-                  <span class="da-pill" [class.pill-warn]="issue.status === 'Open'">{{ issue.status }}</span>
+                  <span class="da-pill" [class.pill-warn]="issue.status === 'Open'">
+                    {{ issue.status === 'Open' ? i18n.t('detail.issueOpen') : i18n.t('detail.issueResolved') }}
+                  </span>
                 </div>
                 @if (issue.description) {
                   <p>{{ issue.description }}</p>
                 }
-                <p class="issue-meta">
-                  @if (issue.componentName) {Component: {{ issue.componentName }} · }
-                  Reported {{ issue.reportedAtUtc | timeAgo }}@if (issue.resolvedAtUtc) { · Resolved {{ issue.resolvedAtUtc | timeAgo }}}
-                </p>
+                <p class="issue-meta">{{ issueMeta(issue) }}</p>
                 <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="startIssue(issue)">
-                  {{ issue.status === 'Open' ? 'Edit or resolve' : 'Edit' }}
+                  {{ issue.status === 'Open' ? i18n.t('detail.issueEditResolve') : i18n.t('common.edit') }}
                 </button>
               </article>
             } @empty {
               @if (issueEditor() === null) {
-                <p class="da-hint">No issues reported. Nice and clean.</p>
+                <p class="da-hint">{{ i18n.t('detail.noIssues') }}</p>
               }
             }
           </section>
@@ -160,49 +151,49 @@ const COLLAPSED_COMPONENTS = 7;
 
         <div class="stack">
           <section class="da-card" aria-labelledby="details-title">
-            <h2 id="details-title">Details</h2>
+            <h2 id="details-title">{{ i18n.t('detail.details') }}</h2>
             <ul class="facts">
-              <li><span>Code</span><b>{{ d.code }}</b></li>
-              <li><span>Nickname</span><b>{{ d.nickname }}</b></li>
-              <li><span>Type</span><b>{{ d.type }}</b></li>
-              <li><span>Status</span><b>{{ statusLabel(d.status) }}</b></li>
-              <li><span>Status since</span><b>{{ d.statusChangedAtUtc | date: 'd MMM y' }}</b></li>
-              <li><span>Added</span><b>{{ d.createdAtUtc | date: 'd MMM y' }}</b></li>
+              <li><span>{{ i18n.t('detail.code') }}</span><b>{{ d.code }}</b></li>
+              <li><span>{{ i18n.t('detail.nickname') }}</span><b>{{ d.nickname }}</b></li>
+              <li><span>{{ i18n.t('detail.type') }}</span><b>{{ i18n.t('type.' + d.type) }}</b></li>
+              <li><span>{{ i18n.t('common.status') }}</span><b>{{ i18n.t('status.' + d.status) }}</b></li>
+              <li><span>{{ i18n.t('detail.statusSince') }}</span><b>{{ i18n.date(d.statusChangedAtUtc) }}</b></li>
+              <li><span>{{ i18n.t('detail.added') }}</span><b>{{ i18n.date(d.createdAtUtc) }}</b></li>
             </ul>
           </section>
 
           <section class="da-card" aria-labelledby="videos-title">
             <h2 id="videos-title">
-              Flight test videos
+              {{ i18n.t('detail.videos') }}
               @if (videoEditor() === null) {
-                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startVideo(null)">＋ Add link</button>
+                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startVideo(null)">＋ {{ i18n.t('detail.addLink') }}</button>
               }
             </h2>
-            <p class="da-hint">Links open in your cloud storage (OneDrive or similar).</p>
+            <p class="da-hint">{{ i18n.t('detail.videosHint') }}</p>
 
             @if (videoEditor() !== null) {
               <form class="inline-form" [formGroup]="videoForm" (ngSubmit)="saveVideo(d)" novalidate>
                 <div class="da-field">
-                  <label for="video-url">Link (https://…)</label>
+                  <label for="video-url">{{ i18n.t('detail.videoUrl') }}</label>
                   <input id="video-url" class="da-input" type="url" formControlName="url" placeholder="https://" [attr.aria-invalid]="videoForm.controls.url.invalid && videoForm.controls.url.touched" />
                   @if (videoForm.controls.url.invalid && videoForm.controls.url.touched) {
-                    <span class="da-error">Enter a valid link that starts with https://.</span>
+                    <span class="da-error">{{ i18n.t('detail.videoUrlError') }}</span>
                   }
                 </div>
                 <div class="da-field">
-                  <label for="video-label">Label (optional)</label>
-                  <input id="video-label" class="da-input" formControlName="label" placeholder="For example, Hover test" />
+                  <label for="video-label">{{ i18n.t('detail.videoLabel') }}</label>
+                  <input id="video-label" class="da-input" formControlName="label" [placeholder]="i18n.t('detail.videoLabelPlaceholder')" />
                 </div>
                 <div class="da-field">
-                  <label for="video-date">Test date (optional)</label>
+                  <label for="video-date">{{ i18n.t('detail.videoDate') }}</label>
                   <input id="video-date" class="da-input" type="date" formControlName="testedOn" />
                 </div>
                 <div class="actions">
                   @if (videoEditor() !== 'new') {
-                    <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="removeVideo(d)">Remove link</button>
+                    <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="removeVideo(d)">{{ i18n.t('detail.removeLink') }}</button>
                   }
-                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="videoEditor.set(null)">Cancel</button>
-                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">Save link</button>
+                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="videoEditor.set(null)">{{ i18n.t('common.cancel') }}</button>
+                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">{{ i18n.t('detail.saveLink') }}</button>
                 </div>
               </form>
             }
@@ -214,15 +205,15 @@ const COLLAPSED_COMPONENTS = 7;
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                   </span>
                   <span>
-                    <b>{{ video.label || 'Flight test video' }}</b>
-                    <small>{{ host(video.url) }}@if (video.testedOn) { · {{ video.testedOn | date: 'd MMM y' }}}</small>
+                    <b>{{ video.label || i18n.t('detail.videoDefaultLabel') }}</b>
+                    <small>{{ host(video.url) }}{{ video.testedOn ? ' · ' + i18n.date(video.testedOn) : '' }}</small>
                   </span>
                 </a>
-                <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="startVideo(video)" [attr.aria-label]="'Edit video link ' + (video.label || host(video.url))">Edit</button>
+                <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="startVideo(video)" [attr.aria-label]="i18n.t('detail.editVideoAria', { name: video.label || host(video.url) })">{{ i18n.t('common.edit') }}</button>
               </div>
             } @empty {
               @if (videoEditor() === null) {
-                <p class="da-hint">No videos yet.</p>
+                <p class="da-hint">{{ i18n.t('detail.noVideos') }}</p>
               }
             }
           </section>
@@ -231,7 +222,7 @@ const COLLAPSED_COMPONENTS = 7;
     } @else if (loadError()) {
       <p class="da-error" role="alert">{{ loadError() }}</p>
     } @else {
-      <p class="da-hint">Loading drone…</p>
+      <p class="da-hint">{{ i18n.t('detail.loading') }}</p>
     }
   `
 })
@@ -239,9 +230,9 @@ export class DroneDetailComponent implements OnInit {
   private readonly service = inject(DroneService);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  readonly i18n = inject(I18nService);
 
   readonly collapsedCount = COLLAPSED_COMPONENTS;
-  readonly statusLabel = statusLabel;
   readonly statusClass = statusClass;
 
   readonly drone = signal<DroneDetail | null>(null);
@@ -273,7 +264,7 @@ export class DroneDetailComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.service.get(id).subscribe({
       next: (drone) => this.drone.set(drone),
-      error: (error: unknown) => this.loadError.set(errorMessage(error, 'We could not load this drone.'))
+      error: (error: unknown) => this.loadError.set(this.i18n.error(error, 'detail.loadError'))
     });
   }
 
@@ -289,6 +280,18 @@ export class DroneDetailComponent implements OnInit {
     }
   }
 
+  issueMeta(issue: DroneIssue): string {
+    const parts: string[] = [];
+    if (issue.componentName) {
+      parts.push(this.i18n.t('detail.issueComponentLine', { name: issue.componentName }));
+    }
+    parts.push(this.i18n.t('detail.issueReported', { when: this.i18n.timeAgo(issue.reportedAtUtc) }));
+    if (issue.resolvedAtUtc) {
+      parts.push(this.i18n.t('detail.issueResolvedWhen', { when: this.i18n.timeAgo(issue.resolvedAtUtc) }));
+    }
+    return parts.join(' · ');
+  }
+
   // Components
   startEditComponents(drone: DroneDetail): void {
     setComponents(this.componentRows, drone.components);
@@ -299,11 +302,13 @@ export class DroneDetailComponent implements OnInit {
   saveComponents(drone: DroneDetail): void {
     if (this.componentRows.invalid) {
       this.componentRows.markAllAsTouched();
-      this.error.set('Check the components: each needs a name and a whole quantity of at least 1.');
+      this.error.set(this.i18n.t('detail.componentsInvalid'));
       return;
     }
-    this.persist(this.service.replaceComponents(drone.id, readComponents(this.componentRows)), 'Components saved.', () =>
-      this.editingComponents.set(false)
+    this.persist(
+      this.service.replaceComponents(drone.id, readComponents(this.componentRows)),
+      'detail.componentsSaved',
+      () => this.editingComponents.set(false)
     );
   }
 
@@ -336,7 +341,7 @@ export class DroneDetailComponent implements OnInit {
       editor === 'new' || editor === null
         ? this.service.addIssue(drone.id, body)
         : this.service.updateIssue(drone.id, editor, body);
-    this.persist(request, 'Issue saved.', () => this.issueEditor.set(null));
+    this.persist(request, 'detail.issueSaved', () => this.issueEditor.set(null));
   }
 
   // Videos
@@ -358,30 +363,30 @@ export class DroneDetailComponent implements OnInit {
       editor === 'new' || editor === null
         ? this.service.addVideo(drone.id, body)
         : this.service.updateVideo(drone.id, editor, body);
-    this.persist(request, 'Video link saved.', () => this.videoEditor.set(null));
+    this.persist(request, 'detail.videoSaved', () => this.videoEditor.set(null));
   }
 
   removeVideo(drone: DroneDetail): void {
     const editor = this.videoEditor();
-    if (!editor || editor === 'new' || !window.confirm('Remove this video link? The video itself is not deleted.')) {
+    if (!editor || editor === 'new' || !window.confirm(this.i18n.t('detail.removeConfirm'))) {
       return;
     }
-    this.persist(this.service.removeVideo(drone.id, editor), 'Video link removed.', () => this.videoEditor.set(null));
+    this.persist(this.service.removeVideo(drone.id, editor), 'detail.videoRemoved', () => this.videoEditor.set(null));
   }
 
-  private persist(request: Observable<DroneDetail>, message: string, done: () => void): void {
+  private persist(request: Observable<DroneDetail>, messageKey: string, done: () => void): void {
     this.saving.set(true);
     this.error.set('');
     this.message.set('');
     request.subscribe({
       next: (drone) => {
         this.drone.set(drone);
-        this.message.set(message);
+        this.message.set(this.i18n.t(messageKey));
         this.saving.set(false);
         done();
       },
       error: (error: unknown) => {
-        this.error.set(errorMessage(error, 'We could not save your change. Please review it and try again.'));
+        this.error.set(this.i18n.error(error, 'detail.saveFailed'));
         this.saving.set(false);
       }
     });

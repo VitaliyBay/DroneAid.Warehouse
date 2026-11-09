@@ -16,6 +16,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   release: tracking the drones we have, with search, filters, components,
   issues, and flight-test video links. It takes precedence over the feature
   documents below, which describe post-MVP direction.
+- [Localization](features/localization.md) defines the English, Ukrainian,
+  Spanish, and Catalan support, how text is translated, and how to add text.
 - [Identification and access](features/identification-and-access.md) defines
   authentication, roles, and permissions.
 - [Drone build tracking](features/drone-build-tracking.md) defines the central

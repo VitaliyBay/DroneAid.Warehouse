@@ -108,7 +108,8 @@ the link, never the video).
 | `POST/PUT /api/drones/{id}/issues[/{issueId}]` | Report or edit an issue (including resolving). |
 | `POST/PUT/DELETE /api/drones/{id}/videos[/{videoId}]` | Add, edit, or remove a video link. |
 
-Errors return `{ "message": "..." }` with 400 (invalid), 404 (not found), or
+Errors return `{ "code": "...", "message": "...", "args": {...} }` (the `code` is
+translated by the web app; see [Localization](localization.md)) with 400 (invalid), 404 (not found), or
 409 (duplicate code). Enums are sent as text (`InTesting`, `NeedsRepair`).
 
 ## Workflow

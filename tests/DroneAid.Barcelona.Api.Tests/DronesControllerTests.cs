@@ -53,6 +53,25 @@ public sealed class DronesControllerTests
         Assert.Equal(1, await database.Drones.CountAsync());
     }
 
+    [Fact]
+    public async Task Create_errors_include_a_code_the_web_app_can_translate()
+    {
+        await using var database = CreateDatabase();
+        var controller = new DronesController(database);
+        await controller.Create(new CreateDroneRequest("DABCN0001", "Falcon", DroneType.Analog, null, null), CancellationToken.None);
+
+        var duplicate = Assert.IsType<ConflictObjectResult>(
+            (await controller.Create(new CreateDroneRequest("dabcn0001", "Other", DroneType.Digital, null, null), CancellationToken.None)).Result);
+        var missing = Assert.IsType<BadRequestObjectResult>(
+            (await controller.Create(new CreateDroneRequest("", "Falcon", DroneType.Analog, null, null), CancellationToken.None)).Result);
+
+        Assert.Equal("drone.code.duplicate", ErrorCode(duplicate.Value));
+        Assert.Equal("drone.code.required", ErrorCode(missing.Value));
+    }
+
+    private static string? ErrorCode(object? body) =>
+        body?.GetType().GetProperty("code")?.GetValue(body) as string;
+
     [Theory]
     [InlineData("", "Falcon", DroneType.Analog)]
     [InlineData("DABCN0001", "  ", DroneType.Analog)]

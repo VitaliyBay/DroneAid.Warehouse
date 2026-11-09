@@ -4,16 +4,12 @@ export type IssueStatus = 'Open' | 'Resolved';
 
 export const DRONE_TYPES: DroneType[] = ['Analog', 'Digital'];
 
-export const DRONE_STATUSES: { value: DroneStatus; label: string; css: string }[] = [
-  { value: 'Available', label: 'Available', css: 'da-status-available' },
-  { value: 'InTesting', label: 'In testing', css: 'da-status-testing' },
-  { value: 'NeedsRepair', label: 'Needs repair', css: 'da-status-repair' },
-  { value: 'Unavailable', label: 'Unavailable', css: 'da-status-unavailable' }
+export const DRONE_STATUSES: { value: DroneStatus; css: string }[] = [
+  { value: 'Available', css: 'da-status-available' },
+  { value: 'InTesting', css: 'da-status-testing' },
+  { value: 'NeedsRepair', css: 'da-status-repair' },
+  { value: 'Unavailable', css: 'da-status-unavailable' }
 ];
-
-export function statusLabel(status: DroneStatus): string {
-  return DRONE_STATUSES.find((item) => item.value === status)?.label ?? status;
-}
 
 export function statusClass(status: DroneStatus): string {
   return DRONE_STATUSES.find((item) => item.value === status)?.css ?? '';
@@ -93,9 +89,4 @@ export interface DroneFilters {
   search: string;
   status: DroneStatus | '';
   type: DroneType | '';
-}
-
-export function errorMessage(error: unknown, fallback: string): string {
-  const message = (error as { error?: { message?: string } } | null)?.error?.message;
-  return message ?? fallback;
 }
