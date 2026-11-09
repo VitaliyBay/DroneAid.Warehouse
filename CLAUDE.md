@@ -64,11 +64,11 @@ as planned or omit documentation merely because the implementation is small.
 Keep `docs/TODO.md` current: mark completed work, remove invalid items, and add
 newly discovered work in the appropriate section.
 
-## Codex Skills and Hooks
+## Claude Skills and Hooks
 
-Repository-local Codex skills are in `.agents/skills/`; their purpose and
-explicit invocation examples are documented in `docs/codex-skills.md`. Use
-`$product-discovery` for an unclear feature idea and `$implement-feature` for
+Repository-local Claude Code skills are in `.claude/skills/`; their purpose and
+explicit invocation examples are documented in `docs/claude-skills.md`. Use
+`/product-discovery` for an unclear feature idea and `/implement-feature` for
 approved implementation work. The optional `.githooks/pre-commit` verifies
 staged API/test or Angular changes after it is enabled with
 `scripts/enable-git-hooks.ps1`.

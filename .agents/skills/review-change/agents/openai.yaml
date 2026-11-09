@@ -1,4 +1,0 @@
-interface:
-  display_name: "Review Change"
-  short_description: "Review a DroneAid change before handoff"
-  default_prompt: "Use $review-change to review the current change."

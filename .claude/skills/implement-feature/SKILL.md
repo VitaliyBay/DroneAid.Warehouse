@@ -7,9 +7,9 @@ description: "Implement a documented DroneAid feature or behavior change, includ
 
 Use this skill when the requested work changes a DroneAid feature or introduces
 new application behavior. It is not for a documentation-only proposal or an
-unscoped product idea; use `$product-discovery` first in those cases.
+unscoped product idea; use `/product-discovery` first in those cases.
 
-Read `AGENTS.md`, the relevant `docs/features/` specification, and
+Read `CLAUDE.md`, the relevant `docs/features/` specification, and
 `docs/architecture/README.md` before changing code. If no feature specification
 exists, create one and add it to `docs/README.md` before implementation.
 

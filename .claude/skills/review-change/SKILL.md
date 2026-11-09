@@ -9,7 +9,7 @@ Use this skill when asked to review a change, prepare it for handoff, or assess
 readiness before merging. It reports findings; it does not edit files unless
 the user separately asks for fixes.
 
-Read `AGENTS.md`, inspect the current Git diff and recent commits, and compare
+Read `CLAUDE.md`, inspect the current Git diff and recent commits, and compare
 the change against its matching feature specification and architecture notes.
 Focus on defects, authorization and data exposure, invalid workflow changes,
 database persistence, error handling, responsive and keyboard use, and missing
