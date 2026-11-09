@@ -1,0 +1,90 @@
+// DroneAid Warehouse design tokens.
+// Derived from the DroneAid.Barcelona brand (blue + yellow + cream, Exo 2 + Inter),
+// adapted for a daily-use app: lighter working surfaces, soft depth, larger radii.
+// Documented in docs/architecture/design-system.md.
+
+:root {
+  // Brand palette (from droneaid-style-tokens.json)
+  --da-blue: #1b2796;
+  --da-navy: #0b1a6b;
+  --da-blue-panel: #2634ae;
+  --da-yellow: #ffd92e;
+  --da-ink: #14206f;
+  --da-cream: #fbf8ec;
+  --da-line: #d8d2b0;
+  --da-blue-soft: #c3caff;
+
+  // App surfaces: the brand blue frames the app, work happens on light surfaces.
+  --da-bg: #f4f5fb; // page background (cool, very light blue-white)
+  --da-surface: #ffffff; // cards, forms, tables
+  --da-surface-warm: var(--da-cream); // highlights, empty states, key facts
+  --da-surface-tint: #eceffd; // hover, selected rows, subtle fills
+  --da-border: #e1e4f3; // hairlines on white
+  --da-border-strong: #c9cee8; // inputs
+
+  // Text
+  --da-text: var(--da-ink);
+  --da-text-muted: #4d5688; // 6.9:1 on white
+  --da-text-on-blue: var(--da-cream);
+  --da-text-on-blue-muted: var(--da-blue-soft);
+
+  // Actions and focus
+  --da-primary: var(--da-blue);
+  --da-primary-hover: var(--da-navy);
+  --da-accent: var(--da-yellow);
+  --da-focus: #6480f5; // logo blue, used for focus rings only
+  --da-focus-ring: 0 0 0 3px rgb(100 128 245 / 45%);
+
+  // Status colours. Always paired with a text label and an icon, never colour alone.
+  --da-status-available-bg: #e3e8ff;
+  --da-status-available-fg: #1b2796;
+  --da-status-testing-bg: #fff3b8;
+  --da-status-testing-fg: #5c4700;
+  --da-status-repair-bg: #ffe2dc;
+  --da-status-repair-fg: #8a1f11; // the only non-brand hue; reserved for problems
+  --da-status-unavailable-bg: #e9eaf2;
+  --da-status-unavailable-fg: #444a6b;
+
+  // Typography
+  --da-font-heading: "Exo 2", "Trebuchet MS", system-ui, sans-serif;
+  --da-font-body: Inter, Arial, system-ui, sans-serif;
+  --da-text-xs: 0.75rem;
+  --da-text-sm: 0.875rem;
+  --da-text-md: 1rem;
+  --da-text-lg: 1.25rem;
+  --da-text-xl: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  --da-text-2xl: clamp(1.9rem, 1.4rem + 2vw, 3rem);
+
+  // Shape and depth
+  --da-radius-sm: 0.625rem; // inputs, small buttons
+  --da-radius-md: 1rem; // pills-as-cards, badges
+  --da-radius-lg: 1.5rem; // cards
+  --da-radius-xl: 2rem; // hero tiles
+  --da-radius-pill: 999px;
+  --da-shadow-sm: 0 1px 2px rgb(20 32 111 / 6%), 0 1px 3px rgb(20 32 111 / 8%);
+  --da-shadow-md: 0 6px 20px rgb(20 32 111 / 10%);
+
+  // Spacing (4px base)
+  --da-space-1: 0.25rem;
+  --da-space-2: 0.5rem;
+  --da-space-3: 0.75rem;
+  --da-space-4: 1rem;
+  --da-space-5: 1.5rem;
+  --da-space-6: 2rem;
+  --da-space-7: 3rem;
+
+  // Layout and touch
+  --da-content-max: 72rem;
+  --da-gutter: clamp(1rem, 4vw, 2rem);
+  --da-tap-min: 2.75rem; // 44px minimum touch target
+
+  // Motion
+  --da-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --da-duration: 160ms;
+}
+
+// Breakpoints (use with @media (min-width: ...)): phone < 40rem, tablet >= 40rem,
+// laptop >= 64rem, desktop >= 90rem.
+$bp-tablet: 40rem;
+$bp-laptop: 64rem;
+$bp-desktop: 90rem;

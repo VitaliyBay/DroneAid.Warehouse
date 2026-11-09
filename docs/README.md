@@ -8,6 +8,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   implementation work, and operational readiness tasks.
 - [Claude Code skills and hooks](claude-skills.md) explains the repository-local AI
   workflows and optional Git checks.
+- [Design system](architecture/design-system.md) defines the app's visual style,
+  derived from the DroneAid.Barcelona brand, and where its tokens and classes live.
 - [Architecture](architecture/README.md) defines the Angular, ASP.NET Core,
   PostgreSQL, Docker, and hosting approach.
 - [Drone registry (MVP)](features/drone-registry-mvp.md) defines the first

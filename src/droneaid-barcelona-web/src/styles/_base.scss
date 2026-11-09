@@ -1,0 +1,85 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--da-bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--da-bg);
+  color: var(--da-text);
+  font-family: var(--da-font-body);
+  font-size: var(--da-text-md);
+  line-height: 1.5;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--da-text);
+  font-family: var(--da-font-heading);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 var(--da-space-3);
+}
+
+// Sentence case by default: friendlier for everyday screens.
+// Uppercase is reserved for hero titles and eyebrows (.da-hero-title, .da-eyebrow).
+h1 {
+  font-size: var(--da-text-2xl);
+}
+
+h2 {
+  font-size: var(--da-text-xl);
+}
+
+h3 {
+  font-size: var(--da-text-lg);
+  font-weight: 700;
+}
+
+p {
+  margin: 0 0 var(--da-space-4);
+}
+
+a {
+  color: var(--da-primary);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+
+  &:hover {
+    color: var(--da-primary-hover);
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  box-shadow: var(--da-focus-ring);
+  outline: 2px solid var(--da-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,339 @@
+@use "tokens" as *;
+
+// Shared building blocks. Prefix `da-` keeps them apart from component styles.
+
+.da-container {
+  margin-inline: auto;
+  max-width: var(--da-content-max);
+  padding-inline: var(--da-gutter);
+  width: 100%;
+}
+
+// App header: brand blue band with the logo, as the frame of the app.
+.da-appbar {
+  align-items: center;
+  background: var(--da-blue);
+  color: var(--da-text-on-blue);
+  display: flex;
+  gap: var(--da-space-3);
+  min-height: 4rem;
+  padding: var(--da-space-2) var(--da-gutter);
+
+  .da-appbar-logo {
+    height: 2.5rem; // brand minimum is 48px on slides; 40px is the screen minimum here
+    width: 2.5rem;
+  }
+
+  .da-appbar-title {
+    font-family: var(--da-font-heading);
+    font-weight: 800;
+    line-height: 1.05;
+
+    small {
+      color: var(--da-text-on-blue-muted);
+      display: block;
+      font-weight: 600;
+    }
+  }
+}
+
+.da-eyebrow {
+  color: var(--da-text-muted);
+  font-size: var(--da-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin: 0 0 var(--da-space-2);
+  text-transform: uppercase;
+}
+
+.da-hero-title {
+  font-size: var(--da-text-2xl);
+  text-transform: uppercase;
+}
+
+// Cards
+.da-card {
+  background: var(--da-surface);
+  border: 1px solid var(--da-border);
+  border-radius: var(--da-radius-lg);
+  box-shadow: var(--da-shadow-sm);
+  padding: var(--da-space-5);
+
+  &.da-card-interactive {
+    cursor: pointer;
+    transition:
+      box-shadow var(--da-duration) var(--da-ease),
+      transform var(--da-duration) var(--da-ease),
+      border-color var(--da-duration) var(--da-ease);
+
+    &:hover {
+      border-color: var(--da-border-strong);
+      box-shadow: var(--da-shadow-md);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.da-card-warm {
+  background: var(--da-surface-warm);
+  border-color: var(--da-line);
+}
+
+// Yellow key-fact tile
+.da-tile {
+  background: var(--da-yellow);
+  border-radius: var(--da-radius-xl);
+  color: var(--da-ink);
+  padding: var(--da-space-5);
+}
+
+// Buttons: 44px touch target, friendly pill shape.
+.da-btn {
+  align-items: center;
+  background: var(--da-primary);
+  border: 2px solid transparent;
+  border-radius: var(--da-radius-pill);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  font: 700 var(--da-text-md) / 1 var(--da-font-body);
+  gap: var(--da-space-2);
+  justify-content: center;
+  min-height: var(--da-tap-min);
+  padding: 0 var(--da-space-5);
+  text-decoration: none;
+  transition:
+    background var(--da-duration) var(--da-ease),
+    transform var(--da-duration) var(--da-ease);
+
+  &:hover {
+    background: var(--da-primary-hover);
+    color: #fff;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  // Yellow call-to-action, used once per screen (for example "Add drone").
+  &.da-btn-accent {
+    background: var(--da-yellow);
+    color: var(--da-ink);
+
+    &:hover {
+      background: #ffe66b;
+      color: var(--da-ink);
+    }
+  }
+
+  &.da-btn-secondary {
+    background: transparent;
+    border-color: var(--da-border-strong);
+    color: var(--da-primary);
+
+    &:hover {
+      background: var(--da-surface-tint);
+      color: var(--da-primary);
+    }
+  }
+
+  &.da-btn-ghost {
+    background: transparent;
+    color: var(--da-primary);
+
+    &:hover {
+      background: var(--da-surface-tint);
+    }
+  }
+}
+
+// Forms
+.da-field {
+  display: grid;
+  gap: var(--da-space-1);
+  margin-bottom: var(--da-space-4);
+
+  label,
+  .da-label {
+    color: var(--da-text);
+    font-size: var(--da-text-sm);
+    font-weight: 700;
+  }
+
+  .da-hint {
+    color: var(--da-text-muted);
+    font-size: var(--da-text-sm);
+  }
+
+  .da-error {
+    color: var(--da-status-repair-fg);
+    font-size: var(--da-text-sm);
+    font-weight: 600;
+  }
+}
+
+.da-input,
+.da-select,
+.da-textarea {
+  background: var(--da-surface);
+  border: 1.5px solid var(--da-border-strong);
+  border-radius: var(--da-radius-sm);
+  color: var(--da-text);
+  font: 400 var(--da-text-md) / 1.4 var(--da-font-body); // 16px avoids iOS zoom on focus
+  min-height: var(--da-tap-min);
+  padding: var(--da-space-2) var(--da-space-3);
+  width: 100%;
+
+  &::placeholder {
+    color: var(--da-text-muted);
+    opacity: 0.8;
+  }
+
+  &:hover {
+    border-color: var(--da-primary);
+  }
+
+  &:focus {
+    border-color: var(--da-focus);
+    box-shadow: var(--da-focus-ring);
+    outline: none;
+  }
+
+  &[aria-invalid="true"] {
+    border-color: var(--da-status-repair-fg);
+  }
+}
+
+// Pills, badges, status chips
+.da-pill {
+  align-items: center;
+  background: var(--da-surface-tint);
+  border-radius: var(--da-radius-pill);
+  color: var(--da-text);
+  display: inline-flex;
+  font-size: var(--da-text-sm);
+  font-weight: 700;
+  gap: var(--da-space-1);
+  min-height: 1.75rem;
+  padding: 0 var(--da-space-3);
+  white-space: nowrap;
+}
+
+// Status chip: label text is mandatory; the dot/icon is decorative.
+.da-status {
+  @extend .da-pill;
+
+  &::before {
+    background: currentcolor;
+    border-radius: 50%;
+    content: "";
+    height: 0.5rem;
+    width: 0.5rem;
+  }
+
+  &.da-status-available {
+    background: var(--da-status-available-bg);
+    color: var(--da-status-available-fg);
+  }
+
+  &.da-status-testing {
+    background: var(--da-status-testing-bg);
+    color: var(--da-status-testing-fg);
+  }
+
+  &.da-status-repair {
+    background: var(--da-status-repair-bg);
+    color: var(--da-status-repair-fg);
+  }
+
+  &.da-status-unavailable {
+    background: var(--da-status-unavailable-bg);
+    color: var(--da-status-unavailable-fg);
+  }
+}
+
+// Filter chips (toggleable)
+.da-chip {
+  @extend .da-pill;
+
+  background: var(--da-surface);
+  border: 1.5px solid var(--da-border-strong);
+  cursor: pointer;
+  min-height: 2.25rem;
+
+  &[aria-pressed="true"],
+  &.is-active {
+    background: var(--da-primary);
+    border-color: var(--da-primary);
+    color: #fff;
+  }
+}
+
+// Number/badge square (brand "number badge")
+.da-badge {
+  align-items: center;
+  background: var(--da-yellow);
+  border-radius: var(--da-radius-md);
+  color: var(--da-ink);
+  display: inline-flex;
+  font-family: var(--da-font-heading);
+  font-weight: 800;
+  height: 2.5rem;
+  justify-content: center;
+  min-width: 2.5rem;
+  padding: 0 var(--da-space-2);
+}
+
+// Key/value rows
+.da-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    align-items: baseline;
+    border-bottom: 1px solid var(--da-border);
+    display: flex;
+    gap: var(--da-space-3);
+    justify-content: space-between;
+    padding: var(--da-space-3) 0;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+}
+
+// Responsive card grid: 1 column on phones, 2 on tablets, 3+ on larger screens.
+.da-grid {
+  display: grid;
+  gap: var(--da-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+}
+
+.da-empty {
+  background: var(--da-surface-warm);
+  border: 1.5px dashed var(--da-line);
+  border-radius: var(--da-radius-lg);
+  color: var(--da-text-muted);
+  padding: var(--da-space-6);
+  text-align: center;
+}
+
+.da-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

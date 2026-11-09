@@ -17,6 +17,10 @@ Spec: `features/drone-registry-mvp.md`.
 - [ ] Build the responsive list, filters, create form, and detail/edit pages.
 - [ ] Reduce the signed-in workspace to the registry; hide inventory/request
   screens from the MVP navigation.
+- [x] Define the app style (`architecture/design-system.md`) and add global
+  tokens and shared classes in `src/styles/`.
+- [ ] Apply the design system to the existing login/workspace screens as the
+  registry UI replaces them.
 - [ ] Verify the registry on phone, tablet, laptop, and desktop viewports.
 
 ## Product and feature decisions
