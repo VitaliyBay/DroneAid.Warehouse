@@ -21,7 +21,16 @@ Spec: `features/drone-registry-mvp.md`.
 - [x] Define the app style (`architecture/design-system.md`) and add global
   tokens and shared classes in `src/styles/`.
 - [x] Apply the design system to the login and registry screens.
-- [ ] Add Angular unit tests and browser end-to-end tests for the registry.
+- [x] Use the invoice models (`PI2026002821`) as the default Analog and Digital
+  components (`features/drone-component-catalog.md`).
+- [x] Add a top-view drone diagram to the detail page
+  (`features/drone-visualization.md`).
+- [ ] Decide whether the servo kit, GPS, and a standard battery join the default
+  component lists; decide whether components need an explicit diagram position
+  instead of name matching.
+- [ ] Add Angular unit tests and browser end-to-end tests for the registry
+  (unit tests exist for the part mapping and the diagram; the rest, and
+  end-to-end tests, are still open).
 - [ ] Verify the registry on tablet, laptop, and desktop viewports (phone and
   one tablet-width pass done manually). Original item: verify the registry on phone, tablet, laptop, and desktop viewports.
 

@@ -30,8 +30,10 @@ Not translated, by design:
 
 - **User data:** drone codes, nicknames, component names and notes, issue text,
   video labels. Users enter these in any language.
-- **Default component names** (`Frame`, `Motor`, …) loaded when a drone is
-  created are stored in English, like any other component data. Technical
+- **Default component names and model notes** (`Frame`, `Motor`, `Pilotix PT10
+  V3 frame`, …) loaded when a drone is created are stored in English, like any
+  other component data. The drone diagram's own labels (part names such as
+  "Motors", "Not in list") are translated. Technical
   abbreviations stay unchanged across languages, as in the brand guide.
 - **Browser-native controls:** the date picker and the `confirm` dialog use the
   browser's own language chrome.

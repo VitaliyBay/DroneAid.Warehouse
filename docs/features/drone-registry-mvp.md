@@ -167,6 +167,8 @@ Layouts are verified at each of those sizes.
   filters narrow the results and can be cleared.
 - The detail page shows status, nickname, components, issues, and video links,
   and each can be edited and saved.
+- The detail page also draws the drone from its components (see
+  [Drone visualization](drone-visualization.md)).
 - Video links open the cloud-storage page in a new tab.
 - All of the above work on phone, tablet, laptop, and desktop widths.
 
