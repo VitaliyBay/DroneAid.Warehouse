@@ -349,7 +349,7 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
     {
         var configuration = DroneBuildConfigurations.Find(type.ToString())!;
         return configuration.Requirements
-            .Select(requirement => new ComponentInput(requirement.ComponentName, null, (int)requirement.Quantity))
+            .Select(requirement => new ComponentInput(requirement.ComponentName, requirement.Detail, (int)requirement.Quantity))
             .ToList();
     }
 

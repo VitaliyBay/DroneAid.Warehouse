@@ -39,6 +39,44 @@ public sealed class DronesControllerTests
     }
 
     [Fact]
+    public async Task Create_loads_invoice_models_for_a_digital_drone()
+    {
+        await using var database = CreateDatabase();
+        var controller = new DronesController(database);
+
+        var detail = Created(await controller.Create(
+            new CreateDroneRequest("DABCN0003", "Digital", DroneType.Digital, null, null),
+            CancellationToken.None));
+
+        Assert.Contains("Avatar GT", Detail(detail, "Digital video unit"));
+        Assert.Contains("BR4", Detail(detail, "Receiver"));
+        Assert.Contains("LHCP", Detail(detail, "Antenna"));
+        Assert.Equal(2, detail.Components.Single(item => item.Name == "Antenna").Quantity);
+        Assert.Contains("PT10 V3", Detail(detail, "Frame"));
+        Assert.Equal(4, detail.Components.Single(item => item.Name == "Motor").Quantity);
+        Assert.Equal(1, detail.Components.Single(item => item.Name == "Electronic speed controller").Quantity);
+    }
+
+    [Fact]
+    public async Task Create_loads_invoice_models_for_an_analog_drone()
+    {
+        await using var database = CreateDatabase();
+        var controller = new DronesController(database);
+
+        var detail = Created(await controller.Create(
+            new CreateDroneRequest("DABCN0004", "Analog", DroneType.Analog, null, null),
+            CancellationToken.None));
+
+        Assert.Contains("P6 Pro", Detail(detail, "Analog camera"));
+        Assert.Contains("3.0W", Detail(detail, "Analog video transmitter"));
+        Assert.Contains("ELRS915", Detail(detail, "Receiver"));
+        Assert.Contains("Lollipop", Detail(detail, "Antenna"));
+        Assert.Contains("MMCX", Detail(detail, "MMCX to SMA adapter cable"));
+        Assert.Contains("pigtail", Detail(detail, "VTX pigtail cable"), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(detail.Components, item => item.Detail?.Contains("Avatar") == true);
+    }
+
+    [Fact]
     public async Task Create_rejects_a_duplicate_code_ignoring_case()
     {
         await using var database = CreateDatabase();
@@ -299,4 +337,7 @@ public sealed class DronesControllerTests
 
         return new DroneAidDbContext(options);
     }
+
+    private static string Detail(DroneDetailResponse detail, string name) =>
+        detail.Components.Single(item => item.Name == name).Detail ?? string.Empty;
 }

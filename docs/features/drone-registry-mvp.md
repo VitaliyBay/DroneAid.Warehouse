@@ -63,13 +63,16 @@ and can then be changed freely for that drone. Changing the type of an existing
 drone asks whether to replace the component list with the new type's defaults
 or keep the current one.
 
-Default lists follow the standard configurations already defined in the
-inventory feature:
+Default lists follow the standard configurations, with the exact models taken
+from the supplier invoice (see
+[Drone component catalog](drone-component-catalog.md)):
 
-- **Shared by both types:** frame, flight controller, motors, electronic speed
-  controllers, propellers, receiver, battery, antenna, fasteners.
-- **Analog adds:** analog camera and video transmitter.
-- **Digital adds:** digital video unit.
+- **Shared by both types:** frame, flight controller, ESC, motors, propellers,
+  battery, fasteners.
+- **Digital adds:** Walksnail Avatar GT kit (video unit), Radiomaster BR4
+  ExpressLRS receiver, and two LHCP omnidirectional antennas.
+- **Analog adds:** analog camera, video transmitter, ELRS receiver, Lollipop
+  antenna, MMCX-to-SMA adapter cable, and VTX pigtail cable.
 
 Each component entry holds a name, an optional model or detail note, and a
 quantity. Users can add, edit, and remove entries on a single drone without
