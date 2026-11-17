@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { DroneService } from '../core/drone.service';
 import { DroneDetail, DroneIssue, DroneVideo, statusClass } from '../core/models';
 import { I18nService } from '../i18n/i18n.service';
+import { DroneDiagramComponent } from '../shared/drone-diagram.component';
 import {
   ComponentGroup,
   ComponentsEditorComponent,
@@ -17,7 +18,7 @@ const COLLAPSED_COMPONENTS = 7;
 
 @Component({
   selector: 'app-drone-detail',
-  imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent],
+  imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent, DroneDiagramComponent],
   template: `
     <div class="crumbs"><a routerLink="/drones">← {{ i18n.t('detail.allDrones') }}</a></div>
 
@@ -41,6 +42,11 @@ const COLLAPSED_COMPONENTS = 7;
       @if (error()) {
         <p class="da-error" role="alert">{{ error() }}</p>
       }
+
+      <section class="da-card diagram-card" aria-labelledby="diagram-title">
+        <h2 id="diagram-title">{{ i18n.t('diagram.title') }}</h2>
+        <app-drone-diagram [drone]="d" />
+      </section>
 
       <div class="cols">
         <div class="stack">
