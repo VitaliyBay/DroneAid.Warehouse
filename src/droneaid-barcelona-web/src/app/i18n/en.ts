@@ -189,7 +189,34 @@ export const en = {
   'error.issue.title.required': 'Enter a short title for the issue.',
   'error.issue.tooLong': 'The issue title can have at most 200 characters, the description 2000, and the component 200.',
   'error.video.url.invalid': 'Enter a valid link that starts with https://.',
-  'error.video.tooLong': 'The link can have at most 2000 characters and the label 200.'
+  'error.video.tooLong': 'The link can have at most 2000 characters and the label 200.',
+
+  'diagram.title': 'Drone diagram',
+  'diagram.hint': 'Top view. Select a part to see its model. Dashed parts are expected for this drone type but are not in its list.',
+  'diagram.front': 'Front',
+  'diagram.rear': 'Rear',
+  'diagram.missing': 'Not in list',
+  'diagram.issue': 'Open issue',
+  'diagram.other': 'Other components (not drawn)',
+  'diagram.svgLabel': 'Top view of {type} drone {code}, with {n} numbered parts',
+  'diagram.selected': 'Selected: {label}',
+  'diagram.none': 'Nothing selected',
+  'slot.frame': 'Frame',
+  'slot.flightController': 'Flight controller',
+  'slot.esc': 'ESC',
+  'slot.motor': 'Motors',
+  'slot.propeller': 'Propellers',
+  'slot.battery': 'Battery',
+  'slot.receiver': 'Receiver',
+  'slot.videoUnit': 'Digital video unit',
+  'slot.camera': 'Camera',
+  'slot.vtx': 'Video transmitter',
+  'slot.antenna': 'Antennas',
+  'slot.adapter': 'Adapter cable',
+  'slot.pigtail': 'VTX pigtail',
+  'slot.gps': 'GPS',
+  'slot.servo': 'Servo',
+  'slot.fasteners': 'Fasteners'
 };
 
 export type MessageKey = keyof typeof en;
