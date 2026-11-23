@@ -145,6 +145,11 @@ export class DroneFormComponent implements OnInit {
     });
     this.form.controls.nickname.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.checkNickname());
 
+    const scannedCode = this.route.snapshot.queryParamMap.get('code');
+    if (!this.id && scannedCode) {
+      this.form.patchValue({ code: scannedCode.trim().slice(0, 50) });
+    }
+
     if (this.id) {
       this.service.get(this.id).subscribe({
         next: (drone) => {

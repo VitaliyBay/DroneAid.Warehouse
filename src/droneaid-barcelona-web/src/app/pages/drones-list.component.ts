@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { catchError, debounceTime, of, startWith, Subject, switchMap, tap } from 'rxjs';
 
 import { DroneService } from '../core/drone.service';
@@ -14,11 +14,13 @@ import {
   DroneType,
   statusClass
 } from '../core/models';
+import { extractDroneCode } from '../core/scan-code';
 import { I18nService } from '../i18n/i18n.service';
+import { CodeScannerComponent } from '../shared/code-scanner.component';
 
 @Component({
   selector: 'app-drones-list',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CodeScannerComponent],
   template: `
     <div class="page-head">
       <div>
@@ -41,12 +43,20 @@ import { I18nService } from '../i18n/i18n.service';
     }
 
     <div class="toolbar">
+      <div class="search-row">
       <div class="search">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
           <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
         </svg>
         <label class="da-visually-hidden" for="search">{{ i18n.t('list.searchLabel') }}</label>
         <input id="search" class="da-input" type="search" [formControl]="search" [placeholder]="i18n.t('list.searchPlaceholder')" autocomplete="off" />
+      </div>
+      <button type="button" class="da-btn da-btn-secondary scan-btn" (click)="scanning.set(true)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M4 12h16" />
+        </svg>
+        {{ i18n.t('scan.button') }}
+      </button>
       </div>
       <div class="filters">
         <div class="filter-group" role="group" [attr.aria-label]="i18n.t('list.filterStatus')">
@@ -70,6 +80,20 @@ import { I18nService } from '../i18n/i18n.service';
         }
       </div>
     </div>
+
+    @if (scanning()) {
+      <app-code-scanner (scanned)="onScanned($event)" (closed)="scanning.set(false)" />
+    }
+
+    @if (scanNotice(); as notice) {
+      <div class="scan-notice" role="status">
+        <span [class.da-error]="notice.kind !== 'looking'">{{ notice.text }}</span>
+        @if (notice.kind === 'notFound') {
+          <a class="da-btn da-btn-accent da-btn-small" routerLink="/drones/new" [queryParams]="{ code: notice.code }">＋ {{ i18n.t('scan.addWithCode') }}</a>
+        }
+        <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="scanNotice.set(null)">{{ i18n.t('scan.close') }}</button>
+      </div>
+    }
 
     @if (error()) {
       <p class="da-error" role="alert">{{ i18n.t('list.loadError') }}</p>
@@ -120,6 +144,7 @@ import { I18nService } from '../i18n/i18n.service';
 })
 export class DronesListComponent {
   private readonly service = inject(DroneService);
+  private readonly router = inject(Router);
   readonly i18n = inject(I18nService);
 
   readonly statuses = DRONE_STATUSES;
@@ -133,6 +158,8 @@ export class DronesListComponent {
   readonly summary = signal<DroneStatusSummary | null>(null);
   readonly loading = signal(true);
   readonly error = signal(false);
+  readonly scanning = signal(false);
+  readonly scanNotice = signal<{ kind: 'looking' | 'notFound' | 'error'; text: string; code: string } | null>(null);
 
   private readonly reload$ = new Subject<void>();
 
@@ -172,6 +199,26 @@ export class DronesListComponent {
 
   typeText(type: DroneType): string {
     return this.i18n.t(`type.${type}`);
+  }
+
+  /** Opens the drone whose code was scanned; offers to add it when the code is unknown. */
+  onScanned(raw: string): void {
+    this.scanning.set(false);
+    const code = extractDroneCode(raw);
+    if (!code) {
+      this.scanNotice.set({ kind: 'error', text: this.i18n.t('scan.unreadable'), code: '' });
+      return;
+    }
+    this.scanNotice.set({ kind: 'looking', text: this.i18n.t('scan.looking', { code }), code });
+    this.service.getByCode(code).subscribe({
+      next: (drone) => void this.router.navigate(['/drones', drone.id]),
+      error: (error: { status?: number }) =>
+        this.scanNotice.set(
+          error?.status === 404
+            ? { kind: 'notFound', text: this.i18n.t('scan.notFound', { code }), code }
+            : { kind: 'error', text: this.i18n.t('scan.lookupFailed'), code }
+        )
+    });
   }
 
   hasFilters(): boolean {

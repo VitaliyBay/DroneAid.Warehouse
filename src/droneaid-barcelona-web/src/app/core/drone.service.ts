@@ -64,6 +64,10 @@ export class DroneService {
     return this.http.get<DroneDetail>(`${this.base}/${id}`);
   }
 
+  getByCode(code: string): Observable<DroneDetail> {
+    return this.http.get<DroneDetail>(`${this.base}/by-code/${encodeURIComponent(code)}`);
+  }
+
   create(identity: DroneIdentity, components: ComponentInput[]): Observable<DroneDetail> {
     return this.http.post<DroneDetail>(this.base, { ...identity, components });
   }

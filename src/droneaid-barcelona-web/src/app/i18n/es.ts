@@ -214,5 +214,23 @@ export const es: Messages = {
   'slot.pigtail': 'Pigtail del VTX',
   'slot.gps': 'GPS',
   'slot.servo': 'Servo',
-  'slot.fasteners': 'Tornillería'
+  'slot.fasteners': 'Tornillería',
+
+  'scan.button': 'Escanear código',
+  'scan.title': 'Escanear código del dron',
+  'scan.hint': 'Apunte la cámara al código QR o de barras del dron.',
+  'scan.starting': 'Iniciando la cámara…',
+  'scan.close': 'Cerrar',
+  'scan.photo': 'Escanear desde una foto',
+  'scan.denied': 'Se bloqueó el acceso a la cámara. Permita la cámara en los ajustes del navegador o escanee desde una foto.',
+  'scan.noCamera': 'No se encontró ninguna cámara. Puede escanear desde una foto.',
+  'scan.insecure': 'La cámara necesita una conexión segura (HTTPS). Puede escanear desde una foto.',
+  'scan.failed': 'No se pudo iniciar la cámara. Puede escanear desde una foto.',
+  'scan.noCode': 'No se encontró ningún código en la foto. Inténtelo de nuevo, más cerca y con mejor luz.',
+  'scan.looking': 'Buscando {code}…',
+  'scan.notFound': 'Ningún dron tiene el código {code}.',
+  'scan.addWithCode': 'Añadir un dron con este código',
+  'scan.lookupFailed': 'No pudimos buscar ese código. Inténtelo de nuevo.',
+  'scan.unreadable': 'Ese no es un código de dron válido.',
+  'error.drone.code.notFound': 'Ningún dron tiene el código {code}.'
 };

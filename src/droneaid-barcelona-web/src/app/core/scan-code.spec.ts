@@ -1,0 +1,36 @@
+import { extractDroneCode } from './scan-code';
+
+describe('extractDroneCode', () => {
+  it('returns a plain code unchanged', () => {
+    expect(extractDroneCode('DABCN0001')).toBe('DABCN0001');
+  });
+
+  it('trims spaces and keeps only the first line', () => {
+    expect(extractDroneCode('  DABCN0001 \r\nextra')).toBe('DABCN0001');
+  });
+
+  it('reads the code from a link path', () => {
+    expect(extractDroneCode('https://example.org/drones/DABCN0002')).toBe('DABCN0002');
+  });
+
+  it('prefers a code query value in a link', () => {
+    expect(extractDroneCode('https://example.org/scan?code=DABCN0003&x=1')).toBe('DABCN0003');
+  });
+
+  it('decodes an encoded path segment', () => {
+    expect(extractDroneCode('https://example.org/d/DAB%20CN')).toBeNull();
+    expect(extractDroneCode('https://example.org/d/DAB%2DCN1')).toBe('DAB-CN1');
+  });
+
+  it('rejects empty, blank, long, and multi-word values', () => {
+    expect(extractDroneCode('')).toBeNull();
+    expect(extractDroneCode('   ')).toBeNull();
+    expect(extractDroneCode(null)).toBeNull();
+    expect(extractDroneCode('A'.repeat(51))).toBeNull();
+    expect(extractDroneCode('two words')).toBeNull();
+  });
+
+  it('rejects a link without a usable code', () => {
+    expect(extractDroneCode('https://example.org/')).toBeNull();
+  });
+});

@@ -214,5 +214,23 @@ export const ca: Messages = {
   'slot.pigtail': 'Pigtail del VTX',
   'slot.gps': 'GPS',
   'slot.servo': 'Servo',
-  'slot.fasteners': 'Cargols i fixacions'
+  'slot.fasteners': 'Cargols i fixacions',
+
+  'scan.button': 'Escaneja el codi',
+  'scan.title': 'Escaneja el codi del dron',
+  'scan.hint': 'Apunteu la càmera al codi QR o de barres del dron.',
+  'scan.starting': 'Iniciant la càmera…',
+  'scan.close': 'Tanca',
+  'scan.photo': 'Escaneja des d’una foto',
+  'scan.denied': 'S’ha bloquejat l’accés a la càmera. Permeteu la càmera als paràmetres del navegador o escanegeu des d’una foto.',
+  'scan.noCamera': 'No s’ha trobat cap càmera. Podeu escanejar des d’una foto.',
+  'scan.insecure': 'La càmera necessita una connexió segura (HTTPS). Podeu escanejar des d’una foto.',
+  'scan.failed': 'No s’ha pogut iniciar la càmera. Podeu escanejar des d’una foto.',
+  'scan.noCode': 'No s’ha trobat cap codi a la foto. Torneu-ho a provar, més a prop i amb millor llum.',
+  'scan.looking': 'Cercant {code}…',
+  'scan.notFound': 'Cap dron té el codi {code}.',
+  'scan.addWithCode': 'Afegeix un dron amb aquest codi',
+  'scan.lookupFailed': 'No hem pogut cercar aquest codi. Torneu-ho a provar.',
+  'scan.unreadable': 'Aquest no és un codi de dron vàlid.',
+  'error.drone.code.notFound': 'Cap dron té el codi {code}.'
 };

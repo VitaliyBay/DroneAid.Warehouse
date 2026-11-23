@@ -592,3 +592,36 @@
 .diagram-card {
   margin-bottom: var(--da-space-4);
 }
+
+.search-row {
+  align-items: center;
+  display: flex;
+  gap: var(--da-space-3);
+
+  .search {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.scan-btn {
+  gap: var(--da-space-2);
+  min-height: 3rem;
+}
+
+.scan-notice {
+  align-items: center;
+  background: var(--da-surface-warm);
+  border-radius: var(--da-radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--da-space-3);
+  margin-bottom: var(--da-space-4);
+  padding: var(--da-space-3) var(--da-space-4);
+}
+
+@media (max-width: 39.99rem) {
+  .scan-btn {
+    padding: 0 var(--da-space-3);
+  }
+}

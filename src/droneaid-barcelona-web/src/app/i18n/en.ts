@@ -216,7 +216,25 @@ export const en = {
   'slot.pigtail': 'VTX pigtail',
   'slot.gps': 'GPS',
   'slot.servo': 'Servo',
-  'slot.fasteners': 'Fasteners'
+  'slot.fasteners': 'Fasteners',
+
+  'scan.button': 'Scan code',
+  'scan.title': 'Scan drone code',
+  'scan.hint': 'Point the camera at the drone\'s QR code or barcode.',
+  'scan.starting': 'Starting camera…',
+  'scan.close': 'Close',
+  'scan.photo': 'Scan from photo',
+  'scan.denied': 'Camera access was blocked. Allow the camera in your browser settings, or scan from a photo.',
+  'scan.noCamera': 'No camera was found. You can scan from a photo.',
+  'scan.insecure': 'The camera needs a secure (HTTPS) connection. You can scan from a photo instead.',
+  'scan.failed': 'The camera could not start. You can scan from a photo.',
+  'scan.noCode': 'No code found in that photo. Try again, closer and in better light.',
+  'scan.looking': 'Looking up {code}…',
+  'scan.notFound': 'No drone has the code {code}.',
+  'scan.addWithCode': 'Add a drone with this code',
+  'scan.lookupFailed': 'We could not look up that code. Try again.',
+  'scan.unreadable': 'That is not a valid drone code.',
+  'error.drone.code.notFound': 'No drone has the code {code}.'
 };
 
 export type MessageKey = keyof typeof en;
