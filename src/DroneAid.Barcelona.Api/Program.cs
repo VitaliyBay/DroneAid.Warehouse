@@ -33,3 +33,6 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapControllers();
 
 app.Run();
+
+/// <summary>Exposes the entry point to integration tests (WebApplicationFactory).</summary>
+public partial class Program;

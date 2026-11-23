@@ -13,7 +13,10 @@ public static class DatabaseInitializer
         var database = scope.ServiceProvider.GetRequiredService<DroneAidDbContext>();
 
         await database.Database.EnsureCreatedAsync();
-        await database.Database.MigrateAsync();
+        if (database.Database.IsRelational())
+        {
+            await database.Database.MigrateAsync();
+        }
 
         const string testUserName = "DAB_Test";
         if (!await database.Users.AnyAsync(user => user.NormalizedUserName == "DAB_TEST"))
