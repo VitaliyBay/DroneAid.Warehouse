@@ -17,6 +17,9 @@ export default defineConfig({
     baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:4210',
     // Use the Chrome already installed on the machine; no browser download needed.
     channel: process.env['E2E_BROWSER_CHANNEL'] ?? 'chrome',
+    // A built-in fake camera lets the scanner start without real hardware or a permission prompt.
+    launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] },
+    permissions: ['camera'],
     locale: 'en-US',
     viewport: { width: 1366, height: 768 },
     trace: 'retain-on-failure',
