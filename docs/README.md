@@ -14,6 +14,9 @@ This directory holds the product documentation for DroneAid Warehouse.
   derived from the DroneAid.Barcelona brand, and where its tokens and classes live.
 - [Architecture](architecture/README.md) defines the Angular, ASP.NET Core,
   PostgreSQL, Docker, and hosting approach.
+- [Free deployment options](architecture/free-deployment-options.md) compares
+  ways to use the app from anywhere at no cost, with the security steps to take
+  first.
 - [Drone registry (MVP)](features/drone-registry-mvp.md) defines the first
   release: tracking the drones we have, with search, filters, components,
   issues, and flight-test video links. It takes precedence over the feature
