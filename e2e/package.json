@@ -1,0 +1,16 @@
+{
+  "name": "droneaid-barcelona-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Browser end-to-end tests for DroneAid Warehouse (Playwright).",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1",
+    "@types/node": "^20.17.0",
+    "typescript": "~5.7.2"
+  }
+}

@@ -1,0 +1,9 @@
+# Disposable stack for browser end-to-end tests (see scripts/run-e2e.ps1 and docs/testing.md).
+# Used as an override on top of compose.yaml with its own project name, so it never touches the
+# development database or the development port 4200.
+#
+#   docker compose -p droneaid-e2e -f compose.yaml -f compose.e2e.yaml up --build -d
+services:
+  web:
+    ports: !override
+      - "4210:80"
