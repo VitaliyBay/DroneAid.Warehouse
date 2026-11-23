@@ -93,6 +93,24 @@ public sealed class DronesEndpointsTests
     }
 
     [Fact]
+    public async Task ByCode_returns_the_drone_for_a_scanned_code_and_404_with_the_code_otherwise()
+    {
+        using var factory = new ApiFactory();
+        var created = await CreateDrone(factory, "DABCN0042", "Scanned", "Digital");
+        var client = factory.CreateClient();
+
+        var found = await client.GetAsync("/api/drones/by-code/dabcn0042");
+        var missing = await client.GetAsync("/api/drones/by-code/DABCN9999");
+
+        Assert.Equal(HttpStatusCode.OK, found.StatusCode);
+        Assert.Equal(Id(created), (await found.ReadJsonAsync()).GetProperty("id").GetString());
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        var error = await missing.ReadJsonAsync();
+        Assert.Equal("drone.code.notFound", error.GetProperty("code").GetString());
+        Assert.Equal("DABCN9999", error.GetProperty("args").GetProperty("code").GetString());
+    }
+
+    [Fact]
     public async Task List_searches_by_code_or_nickname_and_filters_by_status_and_type()
     {
         using var factory = new ApiFactory();

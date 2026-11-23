@@ -77,6 +77,31 @@ public sealed class DronesControllerTests
     }
 
     [Fact]
+    public async Task GetByCode_finds_a_drone_ignoring_case_and_padding()
+    {
+        await using var database = CreateDatabase();
+        var controller = new DronesController(database);
+        var created = Created(await controller.Create(
+            new CreateDroneRequest("DABCN0007", "Scout", DroneType.Analog, null, null),
+            CancellationToken.None));
+
+        var found = Ok(await controller.GetByCode("  dabcn0007 ", CancellationToken.None));
+
+        Assert.Equal(created.Id, found.Id);
+    }
+
+    [Fact]
+    public async Task GetByCode_returns_not_found_for_an_unknown_code()
+    {
+        await using var database = CreateDatabase();
+        var controller = new DronesController(database);
+
+        var result = await controller.GetByCode("NOPE", CancellationToken.None);
+
+        Assert.IsType<NotFoundObjectResult>(result.Result);
+    }
+
+    [Fact]
     public async Task Create_rejects_a_duplicate_code_ignoring_case()
     {
         await using var database = CreateDatabase();

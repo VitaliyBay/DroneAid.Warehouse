@@ -84,6 +84,21 @@ public sealed class DronesController(DroneAidDbContext database) : ControllerBas
         return drone is null ? NotFound(Message(new ApiError("drone.notFound", "The drone could not be found."))) : Ok(ToDetail(drone));
     }
 
+    [HttpGet("by-code/{code}")]
+    public async Task<ActionResult<DroneDetailResponse>> GetByCode(string code, CancellationToken cancellationToken)
+    {
+        var normalized = Normalize(code);
+        var drone = await database.Drones
+            .Include(item => item.Components)
+            .Include(item => item.Issues)
+            .Include(item => item.Videos)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(item => item.NormalizedCode == normalized, cancellationToken);
+        return drone is null
+            ? NotFound(Message(new ApiError("drone.code.notFound", $"No drone has the code {code.Trim()}.", new { code = code.Trim() })))
+            : Ok(ToDetail(drone));
+    }
+
     [HttpPost]
     public async Task<ActionResult<DroneDetailResponse>> Create(
         [FromBody] CreateDroneRequest request,
