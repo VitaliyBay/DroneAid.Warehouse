@@ -11,14 +11,14 @@ public sealed class CreateComponentTypeRequest
     [StringLength(100)] public string? PartNumber { get; init; }
     [Required, StringLength(50)] public string UnitOfMeasure { get; init; } = string.Empty;
     [StringLength(2000)] public string? CompatibilityNotes { get; init; }
-    [Range(typeof(decimal), "0.001", "999999")] public decimal MinimumQuantityPerBuild { get; init; }
+    [Range(typeof(decimal), "0.001", "999999", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)] public decimal MinimumQuantityPerBuild { get; init; }
     [Required, StringLength(100)] public string PerformedBy { get; init; } = string.Empty;
 }
 
 public sealed class ReceiveStockRequest
 {
     public Guid ComponentTypeId { get; init; }
-    [Range(typeof(decimal), "0.001", "999999")] public decimal Quantity { get; init; }
+    [Range(typeof(decimal), "0.001", "999999", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)] public decimal Quantity { get; init; }
     public StockAvailabilityState AvailabilityState { get; init; } = StockAvailabilityState.Available;
     [StringLength(200)] public string? SerialNumberOrBatch { get; init; }
     [StringLength(300)] public string? SourceReference { get; init; }
@@ -28,7 +28,7 @@ public sealed class ReceiveStockRequest
 
 public sealed class AdjustStockRequest
 {
-    [Range(typeof(decimal), "-999999", "999999")] public decimal QuantityDelta { get; init; }
+    [Range(typeof(decimal), "-999999", "999999", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)] public decimal QuantityDelta { get; init; }
     [Required, StringLength(100)] public string PerformedBy { get; init; } = string.Empty;
     [Required, StringLength(1000)] public string Reason { get; init; } = string.Empty;
 }
@@ -36,7 +36,7 @@ public sealed class AdjustStockRequest
 public sealed class CreateComponentRequestRequest
 {
     public Guid ComponentTypeId { get; init; }
-    [Range(typeof(decimal), "0.001", "999999")] public decimal Quantity { get; init; }
+    [Range(typeof(decimal), "0.001", "999999", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)] public decimal Quantity { get; init; }
     [Required, StringLength(1000)] public string Reason { get; init; } = string.Empty;
     public ComponentRequestPriority Priority { get; init; } = ComponentRequestPriority.Normal;
     [Required, StringLength(100)] public string RequestedBy { get; init; } = string.Empty;
@@ -58,7 +58,7 @@ public sealed class OrderComponentRequest
 
 public sealed class ReceiveComponentRequest
 {
-    [Range(typeof(decimal), "0.001", "999999")] public decimal Quantity { get; init; }
+    [Range(typeof(decimal), "0.001", "999999", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)] public decimal Quantity { get; init; }
     public StockAvailabilityState AvailabilityState { get; init; } = StockAvailabilityState.Available;
     [StringLength(200)] public string? SerialNumberOrBatch { get; init; }
     [StringLength(300)] public string? SourceReference { get; init; }
