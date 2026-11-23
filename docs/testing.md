@@ -57,6 +57,10 @@ What the suite covers:
   flight-video links (https only).
 - **Drone diagram:** Digital and Analog parts, selection by mouse and keyboard,
   missing-part and open-issue markers, unmatched components.
+- **Code scanning:** a generated QR image uploaded through the photo fallback
+  opens the drone (plain code and link forms), unknown codes offer to add the
+  drone, photos without a code show a message, and Chrome's fake camera proves
+  the live scanner starts. Real phone cameras are tested by hand (see below).
 - **Responsive and language:** no horizontal scrolling at phone, tablet, laptop,
   and desktop widths; compact markers on phones and labelled callouts on wider
   screens; language switching and persistence.
@@ -69,6 +73,13 @@ Rules for writing end-to-end tests:
 - Sign in through the form only in the authentication tests; other tests use
   `signInQuietly`.
 - Keep one behavior per test and make it independent of the others.
+
+## Manual check on real phones
+
+Automated tests cannot use a real phone camera. Before a release, on an Android
+phone (Chrome) and an iPhone (Safari), open the app over HTTPS, select **Scan
+code**, allow the camera, and scan a printed or on-screen QR code of a drone
+code. Also try **Scan from photo**.
 
 ## Not covered yet
 

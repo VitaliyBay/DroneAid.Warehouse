@@ -19,11 +19,12 @@ In scope:
 - create a drone manually from a code, nickname, and drone type;
 - list drones with search and filters;
 - view a drone's detail page;
-- edit a drone's data, status, components, issues, and video links.
+- edit a drone's data, status, components, issues, and video links;
+- find a drone by scanning its code (see [Drone code scanning](drone-code-scanning.md)).
 
 Out of scope for the MVP (see the other feature documents for the long-term
 plan): the status-transition workflow and approvals, donor and recipient data,
-component stock and requests, QR scanning, assembly guides, QC checklists,
+component stock and requests, assembly guides, QC checklists,
 shipment tracking, notifications, and reporting. The component inventory and
 request screens already built remain in the codebase but are not part of the
 MVP experience.
@@ -104,6 +105,7 @@ the link, never the video).
 | `GET /api/drones?search=&status=&type=` | List drones (available first), with open-issue and video counts. |
 | `GET /api/drones/summary` | Counts per status for the list header. |
 | `GET /api/drones/default-components/{type}` | Standard components for `Analog` or `Digital`. |
+| `GET /api/drones/by-code/{code}` | Drone with components, issues, and videos for an exact code (case-insensitive); used by [code scanning](drone-code-scanning.md). 404 `drone.code.notFound` if none. |
 | `GET /api/drones/{id}` | Drone with components, issues, and videos. |
 | `POST /api/drones` | Create; components default from the type when omitted. |
 | `PUT /api/drones/{id}` | Edit code, nickname, type, status. |
@@ -177,5 +179,5 @@ Layouts are verified at each of those sizes.
 - Confirm the status list and names above.
 - Code is currently editable after creation; confirm or lock it.
 - Choose the standard cloud provider and sharing permissions for flight videos.
-- Decide when to add roles, an audit trail, QR scanning, and the wider
+- Decide when to add roles, an audit trail, and the wider
   build-tracking workflow.
