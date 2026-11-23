@@ -6,6 +6,8 @@ This directory holds the product documentation for DroneAid Warehouse.
   and initial scope.
 - [Repository to-do](TODO.md) is the living checklist of product decisions,
   implementation work, and operational readiness tasks.
+- [Testing](testing.md) explains the unit, integration, and end-to-end test
+  layers and how to run them.
 - [Claude Code skills and hooks](claude-skills.md) explains the repository-local AI
   workflows and optional Git checks.
 - [Design system](architecture/design-system.md) defines the app's visual style,

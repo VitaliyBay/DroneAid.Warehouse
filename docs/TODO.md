@@ -29,8 +29,8 @@ Spec: `features/drone-registry-mvp.md`.
   component lists; decide whether components need an explicit diagram position
   instead of name matching.
 - [ ] Add Angular unit tests and browser end-to-end tests for the registry
-  (unit tests exist for the part mapping and the diagram; the rest, and
-  end-to-end tests, are still open).
+  (unit tests exist for the part mapping and the diagram; end-to-end tests
+  now cover the registry; more Angular unit tests are still open).
 - [ ] Verify the registry on tablet, laptop, and desktop viewports (phone and
   one tablet-width pass done manually). Original item: verify the registry on phone, tablet, laptop, and desktop viewports.
 
@@ -91,8 +91,12 @@ These items belong to the post-MVP roadmap.
 ## Quality and user experience
 
 - [x] Add initial automated unit tests for password hashing and login behavior.
-- [ ] Add database-backed integration tests and browser end-to-end tests.
-- [ ] Set formatting, linting, static analysis, and test checks in CI.
+- [x] Add API integration tests (in-memory database) and browser end-to-end
+  tests (Playwright against a disposable Docker stack); see `testing.md`.
+- [ ] Add database-backed integration tests against real PostgreSQL (the
+  in-memory provider skips the SQL migrations).
+- [ ] Set formatting, linting, static analysis, and test checks in CI (run the
+  .NET, Angular, and `scripts/run-e2e.ps1` suites on every push).
 - [ ] Verify all core workflows on phone, tablet, laptop, and desktop viewports.
 - [ ] Review accessibility: keyboard operation, labels, focus, contrast, and
   readable error messages.

@@ -24,7 +24,8 @@ docker compose up --build              # Run web, API, and PostgreSQL locally
 ```
 
 For frontend checks, run `npm run build` from
-`src/droneaid-barcelona-web/`. Copy `.env.example` to `.env` and set its local
+`src/droneaid-barcelona-web/`. Run `./scripts/run-e2e.ps1` (Docker required) for
+the browser end-to-end tests against a disposable stack; see `docs/testing.md`. Copy `.env.example` to `.env` and set its local
 database password before using Docker Compose. The Angular UI is then available
 at `http://localhost:4200`.
 
