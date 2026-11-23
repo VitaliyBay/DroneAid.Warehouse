@@ -86,6 +86,23 @@ describe('DroneDiagramComponent', () => {
     expect(other).toContain('Fasteners');
   });
 
+  it('labels parts with leader lines on wide screens and numbers them on narrow ones', () => {
+    const element = render(drone('Analog', [component('Frame', null), component('Motor', null, 4)]));
+    const instance = fixture.componentInstance;
+
+    instance.narrow.set(false);
+    fixture.detectChanges();
+    expect(element.querySelector('svg .label')).not.toBeNull();
+    expect(element.querySelectorAll('svg .leader').length).toBeGreaterThan(0);
+    expect(element.textContent).toContain('Motors ×4');
+    expect(element.querySelector('svg .marker')).toBeNull();
+
+    instance.narrow.set(true);
+    fixture.detectChanges();
+    expect(element.querySelector('svg .label')).toBeNull();
+    expect(element.querySelector('svg .marker')).not.toBeNull();
+  });
+
   it('selects a part when its row is clicked', () => {
     const element = render(drone('Analog', [component('Frame', 'Pilotix PT10 V3 frame')]));
 

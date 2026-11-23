@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 
 import { mapParts, PART_SLOTS, PartGroup, PartSlot } from '../core/drone-parts';
 import { DroneComponent, DroneDetail } from '../core/models';
@@ -31,6 +31,34 @@ const MARKERS: Record<PartSlot, [number, number]> = {
   fasteners: [0, 0]
 };
 
+// Wide layout: each part gets a text label in the left or right margin joined to the part by a
+// leader line, like a labelled parts sheet. ax/ay is where the line touches the drawing.
+interface Callout {
+  side: 'l' | 'r';
+  y: number;
+  ax: number;
+  ay: number;
+}
+
+const CALLOUTS: Record<PartSlot, Callout> = {
+  propeller: { side: 'l', y: 40, ax: 56, ay: 56 },
+  frame: { side: 'l', y: 100, ax: 160, ay: 150 },
+  flightController: { side: 'l', y: 160, ax: 176, ay: 200 },
+  servo: { side: 'l', y: 215, ax: 104, ay: 220 },
+  receiver: { side: 'l', y: 272, ax: 166, ay: 264 },
+  pigtail: { side: 'l', y: 322, ax: 200, ay: 298 },
+  adapter: { side: 'l', y: 366, ax: 214, ay: 316 },
+  camera: { side: 'r', y: 62, ax: 234, ay: 108 },
+  battery: { side: 'r', y: 108, ax: 262, ay: 151 },
+  motor: { side: 'r', y: 150, ax: 362, ay: 100 },
+  esc: { side: 'r', y: 194, ax: 246, ay: 226 },
+  gps: { side: 'r', y: 238, ax: 335, ay: 220 },
+  videoUnit: { side: 'r', y: 288, ax: 238, ay: 270 },
+  vtx: { side: 'r', y: 288, ax: 238, ay: 270 },
+  antenna: { side: 'r', y: 392, ax: 0, ay: 392 },
+  fasteners: { side: 'r', y: 0, ax: 0, ay: 0 }
+};
+
 const CORNERS = [
   { x: 90, y: 90 },
   { x: 350, y: 90 },
@@ -45,7 +73,7 @@ const CORNERS = [
     <div class="diagram">
       <figure class="figure">
         <svg
-          viewBox="0 0 440 446"
+          [attr.viewBox]="narrow() ? '0 0 440 446' : '-170 0 780 446'"
           role="group"
           [attr.aria-label]="i18n.t('diagram.svgLabel', { type: i18n.t('type.' + drone().type), code: drone().code, n: entries().length })"
         >
@@ -152,10 +180,19 @@ const CORNERS = [
                   <circle class="dot" cx="112" cy="220" r="3" />
                 }
               }
-              <g class="marker" [attr.transform]="markerTransform(entry.slot)">
-                <circle r="11" />
-                <text y="4" text-anchor="middle">{{ entry.number }}</text>
-              </g>
+              @if (narrow()) {
+                <g class="marker" [attr.transform]="markerTransform(entry.slot)">
+                  <circle r="11" />
+                  <text y="4" text-anchor="middle">{{ entry.number }}</text>
+                </g>
+              } @else {
+                @let c = callout(entry.slot);
+                <line class="leader" [attr.x1]="c.ax" [attr.y1]="c.ay" [attr.x2]="c.side === 'l' ? -8 : 448" [attr.y2]="c.y - 4" />
+                <circle class="anchor" [attr.cx]="c.ax" [attr.cy]="c.ay" r="3.5" />
+                <text class="label" [attr.x]="c.side === 'l' ? -14 : 454" [attr.y]="c.y" [attr.text-anchor]="c.side === 'l' ? 'end' : 'start'">
+                  {{ calloutText(entry) }}
+                </text>
+              }
             </g>
           }
         </svg>
@@ -227,15 +264,14 @@ const CORNERS = [
     }
 
     .diagram {
-      align-items: start;
       display: grid;
       gap: var(--da-space-5);
       grid-template-columns: minmax(0, 1fr);
     }
 
     @media (min-width: 48rem) {
-      .diagram {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      .parts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -250,7 +286,7 @@ const CORNERS = [
       display: block;
       height: auto;
       margin: 0 auto;
-      max-width: 30rem;
+      max-width: 48rem;
       width: 100%;
     }
 
@@ -311,6 +347,49 @@ const CORNERS = [
     .blade {
       fill: var(--da-blue-soft);
       opacity: 0.7;
+    }
+
+    .leader {
+      stroke: var(--da-text-muted);
+      stroke-width: 1.25;
+    }
+
+    .anchor {
+      fill: var(--da-blue);
+    }
+
+    .label {
+      fill: var(--da-text);
+      font-family: var(--da-font-heading);
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .is-on .leader {
+      stroke: var(--da-blue);
+      stroke-width: 2;
+    }
+
+    .is-on .label {
+      fill: var(--da-blue);
+      text-decoration: underline;
+    }
+
+    .has-issue .label {
+      fill: var(--da-status-repair-fg);
+    }
+
+    .has-issue .anchor {
+      fill: var(--da-status-repair-fg);
+    }
+
+    .is-missing .leader {
+      stroke-dasharray: 4 3;
+    }
+
+    .is-missing .label {
+      font-style: italic;
+      opacity: 0.8;
     }
 
     .marker circle {
@@ -394,7 +473,7 @@ const CORNERS = [
       color: var(--da-text-muted);
       font-size: var(--da-text-sm);
       margin: var(--da-space-2) auto 0;
-      max-width: 30rem;
+      max-width: 40rem;
       min-height: 2.6em;
       text-align: center;
     }
@@ -510,6 +589,18 @@ export class DroneDiagramComponent {
   readonly drone = input.required<DroneDetail>();
 
   readonly corners = CORNERS;
+  /** Phones get compact numbered markers; wider screens get labelled callouts. */
+  readonly narrow = signal(false);
+
+  constructor() {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      const query = window.matchMedia('(max-width: 47.99rem)');
+      const update = (event: { matches: boolean }) => this.narrow.set(event.matches);
+      update(query);
+      query.addEventListener('change', update);
+      inject(DestroyRef).onDestroy(() => query.removeEventListener('change', update));
+    }
+  }
   readonly hover = signal<PartSlot | null>(null);
   readonly selected = signal<PartSlot | null>(null);
   readonly highlight = computed(() => this.hover() ?? this.selected());
@@ -561,6 +652,20 @@ export class DroneDiagramComponent {
     ...this.entries().filter((entry) => entry.slot === 'propeller'),
     ...this.entries().filter((entry) => entry.slot !== 'propeller')
   ]);
+
+  callout(slot: PartSlot): Callout {
+    if (slot === 'antenna') {
+      const last = this.antennaXs()[this.antennaXs().length - 1];
+      return { ...CALLOUTS.antenna, ax: last.to + 6 };
+    }
+    return CALLOUTS[slot];
+  }
+
+  calloutText(entry: DiagramEntry): string {
+    const label = this.i18n.t('slot.' + entry.slot);
+    const quantity = entry.group?.components.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+    return quantity > 1 ? `${label} ×${quantity}` : label;
+  }
 
   markerTransform(slot: PartSlot): string {
     const [x, y] = slot === 'antenna' ? [this.antennaXs()[this.antennaXs().length - 1].to + 24, 392] : MARKERS[slot];

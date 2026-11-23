@@ -12,9 +12,13 @@ drones look different because their video chain differs (see the
 
 ## What the user sees
 
-- A top-view schematic (front at the top) with **numbered markers**, next to a
-  numbered **parts list** with each component's name, quantity, and model note.
-  On a phone the list is under the diagram.
+- A top-view schematic (front at the top) laid out like a labelled parts sheet:
+  every part has a **text label with a leader line** in the left or right
+  margin (for example "Motors ×4", "Flight controller", "Digital video unit").
+  Below it is a **parts list** with each component's name, quantity, and model
+  note.
+- On phones (below 48rem) the margin labels would be too small, so the diagram
+  uses compact **numbered markers** that match numbers in the parts list.
 - **Digital drone:** frame, flight controller, ESC, motors, propellers,
   battery, Radiomaster BR4 ExpressLRS receiver, Walksnail Avatar GT kit (camera
   at the front, VTX at the rear), and two LHCP antennas at the rear.
@@ -24,7 +28,7 @@ drones look different because their video chain differs (see the
 - Optional parts, when in the component list, are drawn too: GPS module and
   servo.
 - Selecting a part (click, tap, or Enter/Space on a focused marker or row)
-  highlights it in both the diagram and the list and shows its model under the
+  highlights it (label, leader line, and list row) and shows its model under the
   diagram. Hovering or focusing previews the same highlight.
 
 ## Rules
@@ -49,12 +53,13 @@ drones look different because their video chain differs (see the
 
 ## Accessibility and responsive behavior
 
-- Every marker is a keyboard-focusable button with a text label that names the
+- Every part (label or marker) is a keyboard-focusable button with a text label that names the
   part, its model, and any issue or missing state. Status is never shown by
   colour alone: missing parts use dashed outlines and a "Not in list" label;
   issues use a warning label.
-- Layout is one column below 48rem and two columns above. The diagram scales
-  to the container, with a maximum width of 30rem. Checked at phone (375 px),
+- The diagram is full width above the parts list (maximum 48rem); the list is
+  one column on phones and two columns from 48rem. The diagram scales to its
+  container. Checked at phone (375 px),
   tablet (768 px), and laptop (1366 px) widths with no horizontal scrolling.
 - All texts, including part names, are translated (see
   [Localization](localization.md)); model notes are user data.
