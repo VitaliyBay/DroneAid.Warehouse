@@ -6,6 +6,14 @@
     }
 
     handle {
+        # Always revalidate the page so a new release shows up without a hard refresh;
+        # the hashed JS/CSS files can be cached for a long time.
+        header / Cache-Control "no-cache"
+        header /index.html Cache-Control "no-cache"
+        header /main-*.js Cache-Control "public, max-age=31536000, immutable"
+        header /chunk-*.js Cache-Control "public, max-age=31536000, immutable"
+        header /polyfills-*.js Cache-Control "public, max-age=31536000, immutable"
+        header /styles-*.css Cache-Control "public, max-age=31536000, immutable"
         root * /srv
         try_files {path} /index.html
         file_server
