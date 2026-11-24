@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, 
 import type { IScannerControls } from '@zxing/browser';
 import type { DecodeHintType } from '@zxing/library';
 
-import { extractCodeFromOcrText } from '../core/scan-code';
+import { extractCodeFromOcrText, extractDroneCode } from '../core/scan-code';
 import { I18nService } from '../i18n/i18n.service';
 
 type ScanState = 'starting' | 'scanning' | 'unavailable';
@@ -36,12 +36,34 @@ type ScanState = 'starting' | 'scanning' | 'unavailable';
           }
         </div>
 
-        <p class="da-hint">{{ i18n.t('scan.hint') }}</p>
+        @if (pending() !== null) {
+          <form class="confirm" (submit)="confirm($event)">
+            <label for="scanned-code">{{ i18n.t('scan.confirmLabel') }}</label>
+            <input
+              #codeInput
+              id="scanned-code"
+              class="da-input"
+              type="text"
+              maxlength="50"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              [value]="pending()"
+              (input)="pending.set(codeInput.value)"
+            />
+            <div class="actions">
+              <button type="submit" class="da-btn da-btn-accent">{{ i18n.t('scan.confirmUse') }}</button>
+              <button type="button" class="da-btn da-btn-secondary" (click)="scanAgain()">{{ i18n.t('scan.again') }}</button>
+            </div>
+          </form>
+        } @else {
+          <p class="da-hint">{{ i18n.t('scan.hint') }}</p>
+        }
         @if (message()) {
           <p class="da-error" role="alert">{{ message() }}</p>
         }
 
-        <label class="da-btn da-btn-secondary photo">
+        <label class="da-btn da-btn-secondary photo" [hidden]="pending() !== null">
           {{ i18n.t('scan.photo') }}
           <input class="da-visually-hidden" type="file" accept="image/*" capture="environment" (change)="onPhoto($event)" />
         </label>
@@ -121,6 +143,27 @@ type ScanState = 'starting' | 'scanning' | 'unavailable';
       position: absolute;
     }
 
+    .confirm {
+      display: grid;
+      gap: var(--da-space-2);
+    }
+
+    .confirm input {
+      font-size: var(--da-text-lg);
+      letter-spacing: 0.04em;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--da-space-2);
+    }
+
+    .actions .da-btn {
+      flex: 1 1 8rem;
+      justify-content: center;
+    }
+
     .photo {
       cursor: pointer;
       justify-content: center;
@@ -141,6 +184,8 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
 
   readonly state = signal<ScanState>('starting');
   readonly message = signal('');
+  /** Code read from the camera or a photo, waiting for the user to confirm or correct it. */
+  readonly pending = signal<string | null>(null);
 
   private readonly video = viewChild.required<ElementRef<HTMLVideoElement>>('video');
   private readonly closeButton = viewChild.required<ElementRef<HTMLButtonElement>>('closeButton');
@@ -321,10 +366,31 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
     }
     this.done = true;
     this.controls?.stop();
+    this.controls = null;
     if (this.ocrTimer) {
       clearTimeout(this.ocrTimer);
     }
-    this.scanned.emit(text);
+    this.message.set('');
+    this.pending.set(extractDroneCode(text) ?? (text.trim().split(/\r?\n/)[0] ?? '').slice(0, 50));
+    setTimeout(() => document.getElementById('scanned-code')?.focus());
+  }
+
+  confirm(event: Event): void {
+    event.preventDefault();
+    const code = (this.pending() ?? '').trim();
+    if (!code) {
+      return;
+    }
+    this.scanned.emit(code);
+  }
+
+  async scanAgain(): Promise<void> {
+    this.pending.set(null);
+    this.message.set('');
+    this.done = false;
+    this.lastOcrCode = null;
+    this.state.set('starting');
+    await this.startCamera();
   }
 
   private unavailable(messageKey: string): void {

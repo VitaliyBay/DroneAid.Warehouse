@@ -27,6 +27,7 @@ test.describe('Drone code scanning', () => {
     const dialog = await openScanner(page);
 
     await dialog.locator('input[type="file"]').setInputFiles(await qrImage(drone.code));
+    await dialog.getByRole('button', { name: 'Use this code' }).click();
 
     await expect(page).toHaveURL(new RegExp(`/drones/${drone.id}$`));
     await expect(page.getByRole('heading', { name: 'Scanned drone', level: 1 })).toBeVisible();
@@ -37,6 +38,7 @@ test.describe('Drone code scanning', () => {
     const dialog = await openScanner(page);
 
     await dialog.locator('input[type="file"]').setInputFiles(await qrImage(`https://example.org/drones/${drone.code}`));
+    await dialog.getByRole('button', { name: 'Use this code' }).click();
 
     await expect(page).toHaveURL(new RegExp(`/drones/${drone.id}$`));
   });
@@ -46,11 +48,35 @@ test.describe('Drone code scanning', () => {
     const dialog = await openScanner(page);
 
     await dialog.locator('input[type="file"]').setInputFiles(await qrImage(code));
+    await dialog.getByRole('button', { name: 'Use this code' }).click();
 
     await expect(page.getByRole('status')).toContainText(`No drone has the code ${code}`);
     await page.getByRole('link', { name: /Add a drone with this code/ }).click();
     await expect(page).toHaveURL(/\/drones\/new\?code=/);
     await expect(page.locator('#code')).toHaveValue(code);
+  });
+
+  test('lets the user correct a wrongly read code before it is used', async ({ page, request }) => {
+    const drone = await createDroneViaApi(request, 'Digital', 'Corrected drone');
+    const dialog = await openScanner(page);
+
+    await dialog.locator('input[type="file"]').setInputFiles(await qrImage(uniqueCode('BAD')));
+    const input = dialog.getByLabel(/Check the code/);
+    await expect(input).toBeVisible();
+    await input.fill(drone.code);
+    await dialog.getByRole('button', { name: 'Use this code' }).click();
+
+    await expect(page).toHaveURL(new RegExp(`/drones/${drone.id}$`));
+  });
+
+  test('scans again when the read code is rejected', async ({ page }) => {
+    const dialog = await openScanner(page);
+
+    await dialog.locator('input[type="file"]').setInputFiles(await qrImage(uniqueCode('BAD')));
+    await dialog.getByRole('button', { name: 'Scan again' }).click();
+
+    await expect(dialog.getByLabel(/Check the code/)).toHaveCount(0);
+    await expect(dialog).toBeVisible();
   });
 
   test('tells the user when a photo has no code in it', async ({ page }) => {

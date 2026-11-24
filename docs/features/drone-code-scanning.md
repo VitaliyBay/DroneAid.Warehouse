@@ -13,7 +13,10 @@ code on the drone's label, instead of typing the code.
 1. On the drone list the user selects **Scan code** (next to the search box).
 2. A full-screen scanner opens and starts the rear camera. The user points it at
    the drone's QR code, barcode, or the printed code (for example `DABCN0021`).
-3. When a code is read, the app looks up the drone with that exact code:
+3. When a code is read (camera or photo), the scanner shows it in an editable
+   field: **Check the code. Fix it if it is wrong.** The user corrects it if
+   needed and selects **Use this code**, or selects **Scan again** to read
+   another one. Nothing is looked up until the user confirms. Then the app looks up the drone with that exact code:
    - **Found:** the drone's detail page opens.
    - **Not found:** a notice says "No drone has the code X" with an **Add a
      drone with this code** button, which opens the add form with the code
