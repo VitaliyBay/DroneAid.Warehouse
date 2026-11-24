@@ -218,7 +218,7 @@ export const ca: Messages = {
 
   'scan.button': 'Escaneja el codi',
   'scan.title': 'Escaneja el codi del dron',
-  'scan.hint': 'Apunteu la càmera al codi QR o de barres del dron.',
+  'scan.hint': 'Apunteu la càmera al codi QR, de barres o imprès del dron (per exemple DABCN0021).',
   'scan.starting': 'Iniciant la càmera…',
   'scan.close': 'Tanca',
   'scan.photo': 'Escaneja des d’una foto',

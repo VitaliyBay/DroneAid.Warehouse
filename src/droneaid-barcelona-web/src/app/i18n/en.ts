@@ -220,7 +220,7 @@ export const en = {
 
   'scan.button': 'Scan code',
   'scan.title': 'Scan drone code',
-  'scan.hint': 'Point the camera at the drone\'s QR code or barcode.',
+  'scan.hint': "Point the camera at the drone's QR code, barcode or printed code (for example DABCN0021).",
   'scan.starting': 'Starting camera…',
   'scan.close': 'Close',
   'scan.photo': 'Scan from photo',

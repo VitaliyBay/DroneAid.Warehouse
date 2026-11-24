@@ -1,4 +1,4 @@
-import { extractDroneCode } from './scan-code';
+import { extractCodeFromOcrText, extractDroneCode } from './scan-code';
 
 describe('extractDroneCode', () => {
   it('returns a plain code unchanged', () => {
@@ -32,5 +32,22 @@ describe('extractDroneCode', () => {
 
   it('rejects a link without a usable code', () => {
     expect(extractDroneCode('https://example.org/')).toBeNull();
+  });
+});
+
+describe('extractCodeFromOcrText', () => {
+  it('finds a printed code among other words', () => {
+    expect(extractCodeFromOcrText('DroneAid\nDABCN0021\nBarcelona')).toBe('DABCN0021');
+  });
+
+  it('corrects letters read in place of digits', () => {
+    expect(extractCodeFromOcrText('DABCN00Z1')).toBe('DABCN0021');
+    expect(extractCodeFromOcrText('DABCNOO21')).toBe('DABCN0021');
+  });
+
+  it('ignores text without a code', () => {
+    expect(extractCodeFromOcrText('hello world 12')).toBeNull();
+    expect(extractCodeFromOcrText('')).toBeNull();
+    expect(extractCodeFromOcrText(null)).toBeNull();
   });
 });

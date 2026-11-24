@@ -28,9 +28,9 @@ Spec: `features/drone-registry-mvp.md`.
 - [ ] Decide whether the servo kit, GPS, and a standard battery join the default
   component lists; decide whether components need an explicit diagram position
   instead of name matching.
-- [x] Find a drone by scanning its QR code or barcode on Android and iPhone
+- [x] Find a drone by scanning its QR code, barcode or printed text code (OCR) on Android and iPhone
   (`features/drone-code-scanning.md`).
-- [ ] Test code scanning with real Android and iPhone cameras over HTTPS
+- [ ] Test code scanning (including printed-text OCR accuracy) with real Android and iPhone cameras over HTTPS
   (automated tests use a fake camera and uploaded images).
 - [ ] Add Angular unit tests and browser end-to-end tests for the registry
   (unit tests exist for the part mapping and the diagram; end-to-end tests

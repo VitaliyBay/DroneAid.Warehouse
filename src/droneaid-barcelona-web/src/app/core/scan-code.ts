@@ -32,3 +32,23 @@ export function extractDroneCode(raw: string | null | undefined): string | null 
   }
   return candidate;
 }
+
+/** Characters OCR commonly mistakes for digits when they appear in the numeric part of a code. */
+const DIGIT_LOOKALIKES: Record<string, string> = { O: '0', Q: '0', D: '0', I: '1', L: '1', Z: '2', S: '5', B: '8' };
+
+/**
+ * Finds a printed drone code (letters followed by digits, for example DABCN0021) in text read by
+ * OCR. Letters in the numeric part that look like digits (O, I, S, ...) are corrected.
+ * Returns null when the text holds nothing shaped like a drone code.
+ */
+export function extractCodeFromOcrText(text: string | null | undefined): string | null {
+  const upper = (text ?? '').toUpperCase().replace(/[^A-Z0-9\n ]/g, ' ');
+  for (const match of upper.matchAll(/\b([A-Z]{2,8}?)([0-9OQDILZSB]{3,6})\b/g)) {
+    const digits = match[2].replace(/[OQDILZSB]/g, (letter) => DIGIT_LOOKALIKES[letter]);
+    // Require real digits so ordinary words (HELLO) are not mistaken for codes.
+    if (/^[0-9]{3,6}$/.test(digits) && (match[2].match(/[0-9]/g) ?? []).length >= 2) {
+      return match[1] + digits;
+    }
+  }
+  return null;
+}

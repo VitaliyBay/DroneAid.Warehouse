@@ -2,12 +2,14 @@ import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, 
 import type { IScannerControls } from '@zxing/browser';
 import type { DecodeHintType } from '@zxing/library';
 
+import { extractCodeFromOcrText } from '../core/scan-code';
 import { I18nService } from '../i18n/i18n.service';
 
 type ScanState = 'starting' | 'scanning' | 'unavailable';
 
 /**
- * Full-screen scanner for QR codes and barcodes.
+ * Full-screen scanner for QR codes, barcodes and printed text codes (for example DABCN0021).
+ * Text is read with in-browser OCR (tesseract.js, self-hosted under /ocr) next to the ZXing decoder.
  * Uses the rear camera (works on Android and iPhone) and falls back to reading a photo,
  * which also works where the camera is blocked or the site is not served over HTTPS.
  * The ZXing decoder is loaded only when the scanner opens, so it does not slow the app down.
@@ -145,6 +147,9 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
   private controls: IScannerControls | null = null;
   private destroyed = false;
   private done = false;
+  private ocrWorker: import('tesseract.js').Worker | null = null;
+  private ocrTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastOcrCode: string | null = null;
 
   async ngAfterViewInit(): Promise<void> {
     this.closeButton().nativeElement.focus();
@@ -154,6 +159,10 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
     this.controls?.stop();
+    if (this.ocrTimer) {
+      clearTimeout(this.ocrTimer);
+    }
+    void this.ocrWorker?.terminate();
   }
 
   @HostListener('document:keydown.escape')
@@ -198,6 +207,7 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
       }
       this.controls = controls;
       this.state.set('scanning');
+      this.scheduleOcr(0);
     } catch (error) {
       const name = (error as { name?: string } | null)?.name;
       this.unavailable(
@@ -224,9 +234,84 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
       const result = await reader.decodeFromImageUrl(url);
       this.finish(result.getText());
     } catch {
-      this.message.set(this.i18n.t('scan.noCode'));
+      // No QR code or barcode in the photo: try reading printed text.
+      const code = await this.readTextFromImage(url);
+      if (code) {
+        this.finish(code);
+      } else {
+        this.message.set(this.i18n.t('scan.noCode'));
+      }
     } finally {
       URL.revokeObjectURL(url);
+    }
+  }
+
+  private async getOcrWorker() {
+    if (!this.ocrWorker) {
+      const { createWorker } = await import('tesseract.js');
+      const base = (path: string) => new URL(path, document.baseURI).href;
+      const worker = await createWorker('eng', 1, {
+        workerPath: base('ocr/worker.min.js'),
+        corePath: base('ocr/core'),
+        langPath: base('ocr/lang'),
+        gzip: true
+      });
+      await worker.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+        tessedit_pageseg_mode: '6' as never
+      });
+      if (this.destroyed) {
+        void worker.terminate();
+        throw new Error('closed');
+      }
+      this.ocrWorker = worker;
+    }
+    return this.ocrWorker;
+  }
+
+  /** Reads the printed code from the middle of the camera picture, about twice a second. */
+  private scheduleOcr(delay: number): void {
+    this.ocrTimer = setTimeout(() => void this.ocrFrame(), delay);
+  }
+
+  private async ocrFrame(): Promise<void> {
+    if (this.destroyed || this.done) {
+      return;
+    }
+    try {
+      const video = this.video().nativeElement;
+      if (video.videoWidth > 0) {
+        const worker = await this.getOcrWorker();
+        const sx = video.videoWidth * 0.1;
+        const sy = video.videoHeight * 0.25;
+        const sw = video.videoWidth * 0.8;
+        const sh = video.videoHeight * 0.5;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.min(900, Math.round(sw));
+        canvas.height = Math.round((sh / sw) * canvas.width);
+        canvas.getContext('2d')?.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+        const { data } = await worker.recognize(canvas);
+        const code = extractCodeFromOcrText(data.text);
+        // Accept a code only when two readings in a row agree, to avoid misreads.
+        if (code && code === this.lastOcrCode) {
+          this.finish(code);
+          return;
+        }
+        this.lastOcrCode = code;
+      }
+    } catch {
+      // OCR is a bonus on top of QR/barcode reading; keep scanning if it cannot run.
+    }
+    this.scheduleOcr(350);
+  }
+
+  private async readTextFromImage(url: string): Promise<string | null> {
+    try {
+      const worker = await this.getOcrWorker();
+      const { data } = await worker.recognize(url);
+      return extractCodeFromOcrText(data.text);
+    } catch {
+      return null;
     }
   }
 
@@ -236,6 +321,9 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
     }
     this.done = true;
     this.controls?.stop();
+    if (this.ocrTimer) {
+      clearTimeout(this.ocrTimer);
+    }
     this.scanned.emit(text);
   }
 

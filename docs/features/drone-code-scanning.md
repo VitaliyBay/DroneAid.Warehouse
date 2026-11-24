@@ -12,7 +12,7 @@ code on the drone's label, instead of typing the code.
 
 1. On the drone list the user selects **Scan code** (next to the search box).
 2. A full-screen scanner opens and starts the rear camera. The user points it at
-   the drone's QR code or barcode.
+   the drone's QR code, barcode, or the printed code (for example `DABCN0021`).
 3. When a code is read, the app looks up the drone with that exact code:
    - **Found:** the drone's detail page opens.
    - **Not found:** a notice says "No drone has the code X" with an **Add a
@@ -26,6 +26,12 @@ code on the drone's label, instead of typing the code.
 5. **Close** (or the Escape key) leaves the scanner without doing anything.
 
 ## What the label holds
+
+- **Printed text** is enough: the camera reads a code written as plain text,
+  such as `DABCN0021` (letters followed by digits), with in-browser OCR. A code
+  is accepted only after two camera readings in a row agree, and letters that
+  look like digits in the numeric part (O, I, S, Z, B) are corrected. Large,
+  well-lit, high-contrast print works best.
 
 - The drone code itself, for example `DABCN0001` (QR code, Code 128, Code 39,
   Data Matrix, or EAN-13).
@@ -48,6 +54,10 @@ code on the drone's label, instead of typing the code.
   Nothing is recorded or uploaded; images are read in the browser only.
 - **iPhone:** works in Safari (iOS 14.3 or later) and in a home-screen web app
   using the same page. The video element is inline and muted, as iOS requires.
+- **Text reading (OCR):** the open-source tesseract.js library with English
+  data, self-hosted under `/ocr` (no external service, about 7 MB, downloaded
+  only when the scanner opens). It reads the middle of the camera picture about
+  twice a second and runs on the device.
 - **Decoder:** the open-source ZXing library, loaded only when the scanner opens
   so the rest of the app is not slowed down. It runs on the device.
 - **API:** `GET /api/drones/by-code/{code}` returns the drone (200) or
