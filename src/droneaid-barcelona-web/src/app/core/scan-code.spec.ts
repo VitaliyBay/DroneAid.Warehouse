@@ -1,4 +1,4 @@
-import { extractCodeFromOcrText, extractDroneCode } from './scan-code';
+import { extractCodeFromOcrText, extractDroneCode, ocrCodeCandidates } from './scan-code';
 
 describe('extractDroneCode', () => {
   it('returns a plain code unchanged', () => {
@@ -49,5 +49,23 @@ describe('extractCodeFromOcrText', () => {
     expect(extractCodeFromOcrText('hello world 12')).toBeNull();
     expect(extractCodeFromOcrText('')).toBeNull();
     expect(extractCodeFromOcrText(null)).toBeNull();
+  });
+});
+
+describe('ocrCodeCandidates', () => {
+  it('lists the best reading first and includes a version without an extra character', () => {
+    const candidates = ocrCodeCandidates('DABCNO0021');
+    expect(candidates[0]).toBe('DABCN00021');
+    expect(candidates).toContain('DABCN0021');
+  });
+
+  it('includes a version with a dropped 0 restored', () => {
+    expect(ocrCodeCandidates('DABCN021')).toContain('DABCN0021');
+  });
+
+  it('has no duplicates and nothing for ordinary text', () => {
+    const candidates = ocrCodeCandidates('DABCN0021');
+    expect(new Set(candidates).size).toBe(candidates.length);
+    expect(ocrCodeCandidates('hello world')).toEqual([]);
   });
 });

@@ -2,7 +2,10 @@ import { AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, 
 import type { IScannerControls } from '@zxing/browser';
 import type { DecodeHintType } from '@zxing/library';
 
-import { extractCodeFromOcrText, extractDroneCode } from '../core/scan-code';
+import { catchError, firstValueFrom, forkJoin, map, of } from 'rxjs';
+
+import { DroneService } from '../core/drone.service';
+import { extractDroneCode, ocrCodeCandidates } from '../core/scan-code';
 import { I18nService } from '../i18n/i18n.service';
 
 type ScanState = 'starting' | 'scanning' | 'unavailable';
@@ -177,6 +180,7 @@ type ScanState = 'starting' | 'scanning' | 'unavailable';
 })
 export class CodeScannerComponent implements AfterViewInit, OnDestroy {
   readonly i18n = inject(I18nService);
+  private readonly drones = inject(DroneService);
 
   /** Raw text read from a code. */
   readonly scanned = output<string>();
@@ -280,9 +284,9 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
       this.finish(result.getText());
     } catch {
       // No QR code or barcode in the photo: try reading printed text.
-      const code = await this.readTextFromImage(url);
-      if (code) {
-        this.finish(code);
+      const candidates = await this.readTextFromImage(url);
+      if (candidates.length > 0) {
+        await this.finishOcr(candidates);
       } else {
         this.message.set(this.i18n.t('scan.noCode'));
       }
@@ -293,7 +297,12 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
 
   private async getOcrWorker() {
     if (!this.ocrWorker) {
-      const { createWorker } = await import('tesseract.js');
+      // tesseract.js is a CommonJS module: depending on the bundler, createWorker is on the
+      // module itself or on its default export.
+      const module = (await import('tesseract.js')) as typeof import('tesseract.js') & {
+        default?: typeof import('tesseract.js');
+      };
+      const createWorker = module.createWorker ?? module.default!.createWorker;
       const base = (path: string) => new URL(path, document.baseURI).href;
       const worker = await createWorker('eng', 1, {
         workerPath: base('ocr/worker.min.js'),
@@ -336,28 +345,55 @@ export class CodeScannerComponent implements AfterViewInit, OnDestroy {
         canvas.height = Math.round((sh / sw) * canvas.width);
         canvas.getContext('2d')?.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
         const { data } = await worker.recognize(canvas);
-        const code = extractCodeFromOcrText(data.text);
+        const candidates = ocrCodeCandidates(data.text);
+        const code = candidates[0] ?? null;
         // Accept a code only when two readings in a row agree, to avoid misreads.
         if (code && code === this.lastOcrCode) {
-          this.finish(code);
+          await this.finishOcr(candidates);
           return;
         }
         this.lastOcrCode = code;
       }
-    } catch {
+    } catch (error) {
       // OCR is a bonus on top of QR/barcode reading; keep scanning if it cannot run.
+      console.warn('Text reading (OCR) failed', error);
     }
     this.scheduleOcr(350);
   }
 
-  private async readTextFromImage(url: string): Promise<string | null> {
+  private async readTextFromImage(url: string): Promise<string[]> {
     try {
       const worker = await this.getOcrWorker();
       const { data } = await worker.recognize(url);
-      return extractCodeFromOcrText(data.text);
-    } catch {
-      return null;
+      return ocrCodeCandidates(data.text);
+    } catch (error) {
+      console.warn('Text reading (OCR) failed', error);
+      return [];
     }
+  }
+
+  /**
+   * OCR can misread a character, so prefer the reading that matches a registered drone;
+   * otherwise show the best reading and let the user correct it.
+   */
+  private async finishOcr(candidates: string[]): Promise<void> {
+    if (this.done) {
+      return;
+    }
+    this.done = true;
+    this.controls?.stop();
+    if (this.ocrTimer) {
+      clearTimeout(this.ocrTimer);
+    }
+    const checks = candidates.slice(0, 16).map((code) =>
+      this.drones.getByCode(code).pipe(
+        map(() => code),
+        catchError(() => of(null))
+      )
+    );
+    const found = (await firstValueFrom(forkJoin(checks))).find((code) => code !== null);
+    this.done = false;
+    this.finish(found ?? candidates[0]);
   }
 
   private finish(text: string): void {

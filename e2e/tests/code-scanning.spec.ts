@@ -79,6 +79,31 @@ test.describe('Drone code scanning', () => {
     await expect(dialog).toBeVisible();
   });
 
+  test('reads a printed text code (not a QR code) from a photo and opens the drone', async ({ page, request, browser }) => {
+    test.setTimeout(90_000);
+    const code = `DRN${Math.floor(1000 + Math.random() * 8999)}`;
+    const created = await request.post('/api/drones', { data: { code, nickname: 'Printed code drone', type: 'Digital' } });
+    test.skip(created.status() === 409, 'random printed code collided with an existing drone');
+    expect(created.status()).toBe(201);
+    const drone = (await created.json()) as { id: string };
+
+    // A label with the code written as plain text, as on the real drones.
+    const label = await browser.newPage({ viewport: { width: 700, height: 300 } });
+    await label.setContent(
+      `<body style="margin:0;background:#fff;display:grid;place-items:center;height:300px"><div style="font:bold 90px Arial;color:#000">${code}</div></body>`
+    );
+    const buffer = await label.screenshot();
+    await label.close();
+
+    const dialog = await openScanner(page);
+    await dialog.locator('input[type="file"]').setInputFiles({ name: 'label.png', mimeType: 'image/png', buffer });
+
+    // The reading is shown for confirmation; the registry match fixes a misread character.
+    await expect(dialog.getByLabel(/Check the code/)).toHaveValue(code, { timeout: 60_000 });
+    await dialog.getByRole('button', { name: 'Use this code' }).click();
+    await expect(page).toHaveURL(new RegExp(`/drones/${drone.id}$`));
+  });
+
   test('tells the user when a photo has no code in it', async ({ page }) => {
     const dialog = await openScanner(page);
 

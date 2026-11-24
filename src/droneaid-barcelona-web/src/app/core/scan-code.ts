@@ -36,19 +36,41 @@ export function extractDroneCode(raw: string | null | undefined): string | null 
 /** Characters OCR commonly mistakes for digits when they appear in the numeric part of a code. */
 const DIGIT_LOOKALIKES: Record<string, string> = { O: '0', Q: '0', D: '0', I: '1', L: '1', Z: '2', S: '5', B: '8' };
 
+function normalizeTail(tail: string): string | null {
+  const digits = tail.replace(/[OQDILZSB]/g, (letter) => DIGIT_LOOKALIKES[letter]);
+  return /^[0-9]{3,6}$/.test(digits) ? digits : null;
+}
+
 /**
- * Finds a printed drone code (letters followed by digits, for example DABCN0021) in text read by
- * OCR. Letters in the numeric part that look like digits (O, I, S, ...) are corrected.
- * Returns null when the text holds nothing shaped like a drone code.
+ * Finds printed drone codes (letters followed by digits, for example DABCN0021) in text read by
+ * OCR. The best reading comes first. OCR often misreads a 0 or adds/drops a character next to it,
+ * so close variants follow: letters that look like digits (O, I, S, ...) are corrected, a single
+ * extra character is removed, or a single 0 is added. The caller can check them against the
+ * registry. Returns an empty list when the text holds nothing shaped like a drone code.
  */
-export function extractCodeFromOcrText(text: string | null | undefined): string | null {
+export function ocrCodeCandidates(text: string | null | undefined): string[] {
   const upper = (text ?? '').toUpperCase().replace(/[^A-Z0-9\n ]/g, ' ');
   for (const match of upper.matchAll(/\b([A-Z]{2,8}?)([0-9OQDILZSB]{3,6})\b/g)) {
-    const digits = match[2].replace(/[OQDILZSB]/g, (letter) => DIGIT_LOOKALIKES[letter]);
+    const prefix = match[1];
+    const raw = match[2];
+    const primary = normalizeTail(raw);
     // Require real digits so ordinary words (HELLO) are not mistaken for codes.
-    if (/^[0-9]{3,6}$/.test(digits) && (match[2].match(/[0-9]/g) ?? []).length >= 2) {
-      return match[1] + digits;
+    if (!primary || (raw.match(/[0-9]/g) ?? []).length < 2) {
+      continue;
     }
+    const tails = [primary];
+    for (let i = 0; i < raw.length; i++) {
+      tails.push(normalizeTail(raw.slice(0, i) + raw.slice(i + 1)) ?? '');
+    }
+    for (let i = 0; i <= primary.length; i++) {
+      tails.push(primary.slice(0, i) + '0' + primary.slice(i));
+    }
+    return [...new Set(tails.filter((tail) => /^[0-9]{3,6}$/.test(tail)))].map((tail) => prefix + tail);
   }
-  return null;
+  return [];
+}
+
+/** The most likely printed drone code in OCR text, or null. */
+export function extractCodeFromOcrText(text: string | null | undefined): string | null {
+  return ocrCodeCandidates(text)[0] ?? null;
 }

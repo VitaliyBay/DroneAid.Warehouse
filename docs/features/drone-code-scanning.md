@@ -33,7 +33,10 @@ code on the drone's label, instead of typing the code.
 - **Printed text** is enough: the camera reads a code written as plain text,
   such as `DABCN0021` (letters followed by digits), with in-browser OCR. A code
   is accepted only after two camera readings in a row agree, and letters that
-  look like digits in the numeric part (O, I, S, Z, B) are corrected. Large,
+  look like digits in the numeric part (O, I, S, Z, B) are corrected.
+  OCR often adds, drops, or confuses a character next to a 0, so the app also
+  tries close variants of the reading and prefers the one that matches a drone in
+  the registry; the user can still correct it in the confirm step. Large,
   well-lit, high-contrast print works best.
 
 - The drone code itself, for example `DABCN0001` (QR code, Code 128, Code 39,
