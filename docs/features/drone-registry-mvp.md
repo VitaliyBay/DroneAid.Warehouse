@@ -167,10 +167,9 @@ Layouts are verified at each of those sizes.
 - Creating a drone with an existing code is rejected with a clear message.
 - Searching by part of a code or nickname finds the drone; status and type
   filters narrow the results and can be cleared.
-- The detail page shows status, nickname, components, issues, and video links,
-  and each can be edited and saved.
-- The detail page also draws the drone from its components (see
-  [Drone visualization](drone-visualization.md)).
+- The detail page shows, in this order, the drone details, the flight test
+  videos, then the components and issues (side by side from tablet width, one
+  column on phones), and each can be edited and saved. There is no drone diagram.
 - Video links open the cloud-storage page in a new tab.
 - All of the above work on phone, tablet, laptop, and desktop widths.
 

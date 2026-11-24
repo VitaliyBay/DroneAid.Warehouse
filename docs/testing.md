@@ -7,7 +7,7 @@ merging a change; each is fast enough to run often.
 | --- | --- | --- | --- |
 | API unit tests | Controller and helper logic in isolation | `tests/DroneAid.Barcelona.Api.Tests` | `dotnet test DroneAid.Barcelona.sln` |
 | API integration tests | The real HTTP contract: routing, JSON, status codes, error codes, validation, seeding | `tests/DroneAid.Barcelona.Api.IntegrationTests` | `dotnet test DroneAid.Barcelona.sln` |
-| Angular unit tests | Part mapping and the drone diagram component | `src/droneaid-barcelona-web/src/**/*.spec.ts` | `npm test -- --watch=false --browsers=ChromeHeadless` (from the web folder) |
+| Angular unit tests | Scan code parsing and OCR text matching | `src/droneaid-barcelona-web/src/**/*.spec.ts` | `npm test -- --watch=false --browsers=ChromeHeadless` (from the web folder) |
 | End-to-end tests | The whole system in a real browser: web, API, and PostgreSQL | `e2e/` (Playwright) | `./scripts/run-e2e.ps1` |
 
 ## API integration tests
@@ -35,7 +35,7 @@ touched, so it is safe to run while `docker compose up` is running.
 
 ```powershell
 ./scripts/run-e2e.ps1                                         # everything, then clean up
-./scripts/run-e2e.ps1 -PlaywrightArgs '-g','diagram'          # only tests matching "diagram"
+./scripts/run-e2e.ps1 -PlaywrightArgs '-g','scanning'         # only tests matching "scanning"
 ./scripts/run-e2e.ps1 -PlaywrightArgs '--headed'              # watch the browser
 ./scripts/run-e2e.ps1 -KeepStack                              # leave the stack up to debug
 ./scripts/run-e2e.ps1 -NoStack                                # reuse a running stack (E2E_BASE_URL)
@@ -55,8 +55,6 @@ What the suite covers:
 - **Registry:** create a drone with the default components, duplicate-code
   rejection, required fields, search and filters, status change, issues,
   flight-video links (https only).
-- **Drone diagram:** Digital and Analog parts, selection by mouse and keyboard,
-  missing-part and open-issue markers, unmatched components.
 - **Code scanning:** a generated QR image uploaded through the photo fallback
   opens the drone (plain code and link forms), unknown codes offer to add the
   drone, photos without a code show a message, and Chrome's fake camera proves

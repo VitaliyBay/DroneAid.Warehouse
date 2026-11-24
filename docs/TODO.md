@@ -23,17 +23,16 @@ Spec: `features/drone-registry-mvp.md`.
 - [x] Apply the design system to the login and registry screens.
 - [x] Use the invoice models (`PI2026002821`) as the default Analog and Digital
   components (`features/drone-component-catalog.md`).
-- [x] Add a top-view drone diagram to the detail page
-  (`features/drone-visualization.md`).
+- [x] Add a top-view drone diagram to the detail page, then remove it (judged
+  unattractive) and show details and flight videos above the components.
 - [ ] Decide whether the servo kit, GPS, and a standard battery join the default
-  component lists; decide whether components need an explicit diagram position
-  instead of name matching.
+  component lists.
 - [x] Find a drone by scanning its QR code, barcode or printed text code (OCR) on Android and iPhone
   (`features/drone-code-scanning.md`).
 - [ ] Test code scanning (including printed-text OCR accuracy) with real Android and iPhone cameras over HTTPS
   (automated tests use a fake camera and uploaded images).
 - [ ] Add Angular unit tests and browser end-to-end tests for the registry
-  (unit tests exist for the part mapping and the diagram; end-to-end tests
+  (unit tests exist for the scan code parsing; end-to-end tests
   now cover the registry; more Angular unit tests are still open).
 - [ ] Verify the registry on tablet, laptop, and desktop viewports (phone and
   one tablet-width pass done manually). Original item: verify the registry on phone, tablet, laptop, and desktop viewports.

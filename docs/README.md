@@ -25,9 +25,6 @@ This directory holds the product documentation for DroneAid Warehouse.
   default parts, models, and SKUs for Analog and Digital drones.
 - [Drone code scanning](features/drone-code-scanning.md) defines finding a drone by
   scanning its QR code or barcode on Android and iPhone.
-- [Drone visualization](features/drone-visualization.md) defines the top-view
-  diagram on the drone page, how components map to it, and how missing parts and
-  open issues are shown.
 - [Localization](features/localization.md) defines the English, Ukrainian,
   Spanish, and Catalan support, how text is translated, and how to add text.
 - [Identification and access](features/identification-and-access.md) defines

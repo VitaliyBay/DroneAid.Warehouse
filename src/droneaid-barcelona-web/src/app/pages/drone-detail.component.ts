@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 import { DroneService } from '../core/drone.service';
 import { DroneDetail, DroneIssue, DroneVideo, statusClass } from '../core/models';
 import { I18nService } from '../i18n/i18n.service';
-import { DroneDiagramComponent } from '../shared/drone-diagram.component';
 import {
   ComponentGroup,
   ComponentsEditorComponent,
@@ -18,7 +17,7 @@ const COLLAPSED_COMPONENTS = 7;
 
 @Component({
   selector: 'app-drone-detail',
-  imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent, DroneDiagramComponent],
+  imports: [ReactiveFormsModule, RouterLink, ComponentsEditorComponent],
   template: `
     <div class="crumbs"><a routerLink="/drones">← {{ i18n.t('detail.allDrones') }}</a></div>
 
@@ -43,10 +42,78 @@ const COLLAPSED_COMPONENTS = 7;
         <p class="da-error" role="alert">{{ error() }}</p>
       }
 
-      <section class="da-card diagram-card" aria-labelledby="diagram-title">
-        <h2 id="diagram-title">{{ i18n.t('diagram.title') }}</h2>
-        <app-drone-diagram [drone]="d" />
-      </section>
+      <div class="cols">
+        <div class="stack">
+          <section class="da-card" aria-labelledby="details-title">
+            <h2 id="details-title">{{ i18n.t('detail.details') }}</h2>
+            <ul class="facts">
+              <li><span>{{ i18n.t('detail.code') }}</span><b>{{ d.code }}</b></li>
+              <li><span>{{ i18n.t('detail.nickname') }}</span><b>{{ d.nickname }}</b></li>
+              <li><span>{{ i18n.t('detail.type') }}</span><b>{{ i18n.t('type.' + d.type) }}</b></li>
+              <li><span>{{ i18n.t('common.status') }}</span><b>{{ i18n.t('status.' + d.status) }}</b></li>
+              <li><span>{{ i18n.t('detail.statusSince') }}</span><b>{{ i18n.date(d.statusChangedAtUtc) }}</b></li>
+              <li><span>{{ i18n.t('detail.added') }}</span><b>{{ i18n.date(d.createdAtUtc) }}</b></li>
+            </ul>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="da-card" aria-labelledby="videos-title">
+            <h2 id="videos-title">
+              {{ i18n.t('detail.videos') }}
+              @if (videoEditor() === null) {
+                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startVideo(null)">＋ {{ i18n.t('detail.addLink') }}</button>
+              }
+            </h2>
+            <p class="da-hint">{{ i18n.t('detail.videosHint') }}</p>
+
+            @if (videoEditor() !== null) {
+              <form class="inline-form" [formGroup]="videoForm" (ngSubmit)="saveVideo(d)" novalidate>
+                <div class="da-field">
+                  <label for="video-url">{{ i18n.t('detail.videoUrl') }}</label>
+                  <input id="video-url" class="da-input" type="url" formControlName="url" placeholder="https://" [attr.aria-invalid]="videoForm.controls.url.invalid && videoForm.controls.url.touched" />
+                  @if (videoForm.controls.url.invalid && videoForm.controls.url.touched) {
+                    <span class="da-error">{{ i18n.t('detail.videoUrlError') }}</span>
+                  }
+                </div>
+                <div class="da-field">
+                  <label for="video-label">{{ i18n.t('detail.videoLabel') }}</label>
+                  <input id="video-label" class="da-input" formControlName="label" [placeholder]="i18n.t('detail.videoLabelPlaceholder')" />
+                </div>
+                <div class="da-field">
+                  <label for="video-date">{{ i18n.t('detail.videoDate') }}</label>
+                  <input id="video-date" class="da-input" type="date" formControlName="testedOn" />
+                </div>
+                <div class="actions">
+                  @if (videoEditor() !== 'new') {
+                    <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="removeVideo(d)">{{ i18n.t('detail.removeLink') }}</button>
+                  }
+                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="videoEditor.set(null)">{{ i18n.t('common.cancel') }}</button>
+                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">{{ i18n.t('detail.saveLink') }}</button>
+                </div>
+              </form>
+            }
+
+            @for (video of d.videos; track video.id) {
+              <div class="video">
+                <a class="video-link" [href]="video.url" target="_blank" rel="noopener noreferrer">
+                  <span class="play" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                  <span>
+                    <b>{{ video.label || i18n.t('detail.videoDefaultLabel') }}</b>
+                    <small>{{ host(video.url) }}{{ video.testedOn ? ' · ' + i18n.date(video.testedOn) : '' }}</small>
+                  </span>
+                </a>
+                <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="startVideo(video)" [attr.aria-label]="i18n.t('detail.editVideoAria', { name: video.label || host(video.url) })">{{ i18n.t('common.edit') }}</button>
+              </div>
+            } @empty {
+              @if (videoEditor() === null) {
+                <p class="da-hint">{{ i18n.t('detail.noVideos') }}</p>
+              }
+            }
+          </section>
+        </div>
+      </div>
 
       <div class="cols">
         <div class="stack">
@@ -84,7 +151,8 @@ const COLLAPSED_COMPONENTS = 7;
               }
             }
           </section>
-
+        </div>
+        <div class="stack">
           <section class="da-card" aria-labelledby="issues-title">
             <h2 id="issues-title">
               {{ i18n.t('detail.issues') }}
@@ -155,75 +223,6 @@ const COLLAPSED_COMPONENTS = 7;
           </section>
         </div>
 
-        <div class="stack">
-          <section class="da-card" aria-labelledby="details-title">
-            <h2 id="details-title">{{ i18n.t('detail.details') }}</h2>
-            <ul class="facts">
-              <li><span>{{ i18n.t('detail.code') }}</span><b>{{ d.code }}</b></li>
-              <li><span>{{ i18n.t('detail.nickname') }}</span><b>{{ d.nickname }}</b></li>
-              <li><span>{{ i18n.t('detail.type') }}</span><b>{{ i18n.t('type.' + d.type) }}</b></li>
-              <li><span>{{ i18n.t('common.status') }}</span><b>{{ i18n.t('status.' + d.status) }}</b></li>
-              <li><span>{{ i18n.t('detail.statusSince') }}</span><b>{{ i18n.date(d.statusChangedAtUtc) }}</b></li>
-              <li><span>{{ i18n.t('detail.added') }}</span><b>{{ i18n.date(d.createdAtUtc) }}</b></li>
-            </ul>
-          </section>
-
-          <section class="da-card" aria-labelledby="videos-title">
-            <h2 id="videos-title">
-              {{ i18n.t('detail.videos') }}
-              @if (videoEditor() === null) {
-                <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="startVideo(null)">＋ {{ i18n.t('detail.addLink') }}</button>
-              }
-            </h2>
-            <p class="da-hint">{{ i18n.t('detail.videosHint') }}</p>
-
-            @if (videoEditor() !== null) {
-              <form class="inline-form" [formGroup]="videoForm" (ngSubmit)="saveVideo(d)" novalidate>
-                <div class="da-field">
-                  <label for="video-url">{{ i18n.t('detail.videoUrl') }}</label>
-                  <input id="video-url" class="da-input" type="url" formControlName="url" placeholder="https://" [attr.aria-invalid]="videoForm.controls.url.invalid && videoForm.controls.url.touched" />
-                  @if (videoForm.controls.url.invalid && videoForm.controls.url.touched) {
-                    <span class="da-error">{{ i18n.t('detail.videoUrlError') }}</span>
-                  }
-                </div>
-                <div class="da-field">
-                  <label for="video-label">{{ i18n.t('detail.videoLabel') }}</label>
-                  <input id="video-label" class="da-input" formControlName="label" [placeholder]="i18n.t('detail.videoLabelPlaceholder')" />
-                </div>
-                <div class="da-field">
-                  <label for="video-date">{{ i18n.t('detail.videoDate') }}</label>
-                  <input id="video-date" class="da-input" type="date" formControlName="testedOn" />
-                </div>
-                <div class="actions">
-                  @if (videoEditor() !== 'new') {
-                    <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="removeVideo(d)">{{ i18n.t('detail.removeLink') }}</button>
-                  }
-                  <button type="button" class="da-btn da-btn-secondary da-btn-small" (click)="videoEditor.set(null)">{{ i18n.t('common.cancel') }}</button>
-                  <button type="submit" class="da-btn da-btn-small" [disabled]="saving()">{{ i18n.t('detail.saveLink') }}</button>
-                </div>
-              </form>
-            }
-
-            @for (video of d.videos; track video.id) {
-              <div class="video">
-                <a class="video-link" [href]="video.url" target="_blank" rel="noopener noreferrer">
-                  <span class="play" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                  </span>
-                  <span>
-                    <b>{{ video.label || i18n.t('detail.videoDefaultLabel') }}</b>
-                    <small>{{ host(video.url) }}{{ video.testedOn ? ' · ' + i18n.date(video.testedOn) : '' }}</small>
-                  </span>
-                </a>
-                <button type="button" class="da-btn da-btn-ghost da-btn-small" (click)="startVideo(video)" [attr.aria-label]="i18n.t('detail.editVideoAria', { name: video.label || host(video.url) })">{{ i18n.t('common.edit') }}</button>
-              </div>
-            } @empty {
-              @if (videoEditor() === null) {
-                <p class="da-hint">{{ i18n.t('detail.noVideos') }}</p>
-              }
-            }
-          </section>
-        </div>
       </div>
     } @else if (loadError()) {
       <p class="da-error" role="alert">{{ loadError() }}</p>

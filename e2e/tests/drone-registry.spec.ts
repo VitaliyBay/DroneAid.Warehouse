@@ -36,6 +36,8 @@ test.describe('Drone registry', () => {
 
     await page.goto(`/drones/${drone.id}`);
 
+    await page.getByRole('button', { name: /^Show all/ }).click();
+
     await expect(page.getByText('Walksnail Avatar GT Kit').first()).toBeVisible();
     await expect(page.getByText(/Radiomaster BR4/).first()).toBeVisible();
     await expect(page.getByText(/Maple Wireless/).first()).toBeVisible();
@@ -88,7 +90,7 @@ test.describe('Drone registry', () => {
     await expect(page.locator('.head-row .da-status')).toContainText('Needs repair');
   });
 
-  test('reports an issue, flags the part in the diagram and resolves it', async ({ page, request }) => {
+  test('reports an issue and resolves it', async ({ page, request }) => {
     const drone = await createDroneViaApi(request, 'Analog');
     await page.goto(`/drones/${drone.id}`);
 
@@ -98,14 +100,27 @@ test.describe('Drone registry', () => {
     await page.getByRole('button', { name: 'Save issue' }).click();
 
     await expect(page.getByText('Motor makes noise')).toBeVisible();
-    await expect(page.locator('app-drone-diagram .part.has-issue')).toHaveCount(1);
-    await expect(page.locator('app-drone-diagram').getByText('Open issue').first()).toBeVisible();
+    await expect(page.locator('.issue').filter({ hasText: 'Motor makes noise' })).toContainText('Open');
 
     await page.getByRole('button', { name: /Edit.*resolve|Edit/ }).last().click();
     await page.locator('#issue-status').selectOption('Resolved');
     await page.getByRole('button', { name: 'Save issue' }).click();
 
-    await expect(page.locator('app-drone-diagram .part.has-issue')).toHaveCount(0);
+    await expect(page.locator('.issue').filter({ hasText: 'Motor makes noise' })).toContainText('Resolved');
+  });
+
+  test('shows details and flight videos above the components, without a diagram', async ({ page, request }) => {
+    const drone = await createDroneViaApi(request, 'Digital');
+    await page.goto(`/drones/${drone.id}`);
+
+    const details = page.getByRole('heading', { name: 'Details', level: 2 });
+    const videos = page.getByRole('heading', { name: /Flight test videos/, level: 2 });
+    const components = page.getByRole('heading', { name: /^Components/, level: 2 });
+    await expect(components).toBeVisible();
+    const top = async (heading: typeof details) => (await heading.boundingBox())!.y;
+    expect(await top(details)).toBeLessThan(await top(components));
+    expect(await top(videos)).toBeLessThan(await top(components));
+    await expect(page.locator('app-drone-diagram')).toHaveCount(0);
   });
 
   test('adds a flight-test video link that opens in a new tab', async ({ page, request }) => {

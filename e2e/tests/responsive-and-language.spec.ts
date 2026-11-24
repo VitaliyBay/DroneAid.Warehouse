@@ -21,19 +21,8 @@ test.describe('Responsive layout', () => {
       expect(await hasHorizontalScroll(page)).toBe(false);
 
       await page.goto(`/drones/${drone.id}`);
-      await expect(page.locator('app-drone-diagram svg')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Details', level: 2 })).toBeVisible();
       expect(await hasHorizontalScroll(page)).toBe(false);
-
-      // Phones get compact numbered markers; wider screens get labelled callouts.
-      const markers = page.locator('app-drone-diagram svg .marker');
-      const labels = page.locator('app-drone-diagram svg .label');
-      if (viewport.narrow) {
-        await expect(markers.first()).toBeVisible();
-        await expect(labels).toHaveCount(0);
-      } else {
-        await expect(labels.first()).toBeVisible();
-        await expect(markers).toHaveCount(0);
-      }
     });
   }
 
@@ -50,16 +39,15 @@ test.describe('Responsive layout', () => {
 });
 
 test.describe('Language', () => {
-  test('switches the whole screen to Spanish, including the diagram', async ({ page, request }) => {
+  test('switches the whole screen to Spanish', async ({ page, request }) => {
     await signInQuietly(page);
     const drone = await createDroneViaApi(request, 'Analog');
     await page.goto(`/drones/${drone.id}`);
-    await expect(page.getByRole('heading', { name: 'Drone diagram' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Details', level: 2 })).toBeVisible();
 
     await page.locator('#language').selectOption('es');
 
-    await expect(page.getByRole('heading', { name: 'Esquema del dron' })).toBeVisible();
-    await expect(page.locator('app-drone-diagram svg').getByText('Cámara', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Detalles', level: 2 })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   });
 

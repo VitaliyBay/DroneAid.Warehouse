@@ -7,8 +7,7 @@
 
 ## Rules
 
-- Each entry has a generic **name** (stable, used for grouping and by the
-  [drone visualization](drone-visualization.md)) and a **detail** note with the
+- Each entry has a generic **name** (stable, used for grouping) and a **detail** note with the
   model and supplier SKU.
 - Existing drones keep their own lists; only new drones, and a type change that
   chooses "replace with defaults", use these lists.
@@ -55,9 +54,6 @@ so the ESC quantity is 1 (it was 4 before the invoice models were applied).
 | --- | --- | --- |
 | Emax ES3054 metal-gear servo kit (0102073003) | 2 | Not needed on every drone (for example a payload release); add it per drone. |
 | HGLRC M100pro GPS module (6565) | 1 | One unit for four drones; add it per drone. |
-
-The [visualization](drone-visualization.md) draws both parts when they are in a
-drone's component list.
 
 ## Decisions to make
 

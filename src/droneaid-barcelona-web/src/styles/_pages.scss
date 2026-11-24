@@ -589,8 +589,8 @@
   }
 }
 
-.diagram-card {
-  margin-bottom: var(--da-space-4);
+.cols + .cols {
+  margin-top: var(--da-space-4);
 }
 
 .search-row {
